@@ -6,7 +6,10 @@ _site/
 
 # Bundler / Ruby gems
 .bundle/
-vendor/
+vendor/bundle/
+
+# Theme vendored SASS libraries (keep these)
+!_sass/vendor/
 
 # Logs
 *.log
