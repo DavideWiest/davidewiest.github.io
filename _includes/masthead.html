@@ -1,0 +1,37 @@
+{% include base_path %}
+
+<div class="masthead">
+  <div class="masthead__inner-wrap">
+    <div class="masthead__menu">
+      <nav id="site-nav" class="greedy-nav">
+        <button class="hidden"><div class="navicon"></div></button>
+        <ul class="visible-links">
+          <li class="masthead__menu-item masthead__menu-item--mark">
+            <a class="site-mark" href="{{ base_path }}/">DW</a>
+          </li>
+          {% for link in site.data.navigation.primary %}
+            {% if link.url contains '://' or link.url contains 'mailto:' %}
+              {% assign href = link.url %}
+            {% else %}
+              {% assign href = base_path | append: link.url %}
+            {% endif %}
+            <li class="masthead__menu-item">
+              <a href="{{ href }}"{% if link._target %} target="{{ link._target }}" rel="noopener noreferrer"{% endif %}>{{ link.title }}</a>
+            </li>
+          {% endfor %}
+          {% for link in site.data.navigation.secondary %}
+            {% if link.url contains '://' or link.url contains 'mailto:' %}
+              {% assign href = link.url %}
+            {% else %}
+              {% assign href = base_path | append: link.url %}
+            {% endif %}
+            <li class="masthead__menu-item{% if forloop.first %} masthead__menu-item--secondary-start{% endif %}">
+              <a href="{{ href }}"{% if link._target %} target="{{ link._target }}" rel="noopener noreferrer"{% endif %}>{{ link.title }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+        <ul class="hidden-links hidden"></ul>
+      </nav>
+    </div>
+  </div>
+</div>

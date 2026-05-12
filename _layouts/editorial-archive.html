@@ -1,0 +1,21 @@
+---
+layout: default
+---
+
+{% if page.url != "/" and site.breadcrumbs %}
+  {% unless paginator %}
+    {% include breadcrumbs.html %}
+  {% endunless %}
+{% endif %}
+
+<div id="main" role="main">
+  <section class="archive archive--editorial">
+    <header class="archive__intro">
+      <h1 class="page__title">{{ page.title }}</h1>
+    </header>
+
+    <div class="archive__list">
+      {{ content }}
+    </div>
+  </section>
+</div>

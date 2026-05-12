@@ -1,0 +1,39 @@
+{% include base_path %}
+{% assign item = include.item %}
+{% assign action_url = item.link | default: item.paperurl %}
+{% assign action_label = item.link_label %}
+{% assign action_href = action_url %}
+{% assign show_details = include.include_permalink %}
+{% assign has_details = false %}
+
+{% if show_details == nil %}
+  {% assign show_details = true %}
+{% endif %}
+
+{% if action_url %}
+  {% if action_label == nil or action_label == "" %}
+    {% if action_url contains 'github.com' %}
+      {% assign action_label = 'Repository' %}
+    {% else %}
+      {% assign action_label = 'Website' %}
+    {% endif %}
+  {% endif %}
+  {% unless action_url contains '://' or action_url contains 'mailto:' %}
+    {% assign action_href = base_path | append: action_url %}
+  {% endunless %}
+{% endif %}
+
+{% if show_details and item.url %}
+  {% assign has_details = true %}
+{% endif %}
+
+{% if action_url or has_details %}
+  <div class="entry-actions entry-actions--{{ include.variant | default: 'page' }}">
+    {% if action_url %}
+      <a class="entry-actions__primary" href="{{ action_href }}"{% if action_url contains '://' or action_url contains 'mailto:' %} target="_blank" rel="noopener noreferrer"{% endif %}>{{ action_label }}</a>
+    {% endif %}
+    {% if has_details %}
+      <a class="entry-actions__secondary" href="{{ base_path }}{{ item.url }}">Details</a>
+    {% endif %}
+  </div>
+{% endif %}

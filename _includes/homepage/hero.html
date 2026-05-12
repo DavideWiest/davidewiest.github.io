@@ -1,0 +1,19 @@
+{% include base_path %}
+{% assign author = site.author %}
+
+<section class="homepage-hero">
+  <div class="homepage-hero__grid">
+    <div class="homepage-hero__portrait">
+      {% if author.avatar contains "://" %}
+        <img src="{{ author.avatar }}" alt="{{ author.name }}">
+      {% else %}
+        <img src="{{ author.avatar | prepend: "/images/" | prepend: base_path }}" alt="{{ author.name }}">
+      {% endif %}
+    </div>
+
+    <div class="homepage-hero__body">
+      <p class="homepage-hero__intro">{{ page.hero_intro }}</p>
+      <p class="homepage-hero__supporting">{{ page.hero_supporting }}</p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,34 @@
+{% include base_path %}
+{% assign item = include.item %}
+
+{% if item.header.teaser %}
+  {% capture teaser %}{{ item.header.teaser }}{% endcapture %}
+{% else %}
+  {% assign teaser = nil %}
+{% endif %}
+
+{% if item.id %}
+  {% assign title = item.title | markdownify | remove: "<p>" | remove: "</p>" %}
+{% else %}
+  {% assign title = item.title %}
+{% endif %}
+
+<div class="archive-entry">
+  <article class="archive-entry__article" itemscope itemtype="http://schema.org/CreativeWork">
+    <div class="archive-entry__body">
+      <h2 class="archive-entry__title" itemprop="headline">
+        <a href="{{ base_path }}{{ item.url }}" rel="permalink">{{ title }}</a>
+      </h2>
+
+      {% if item.excerpt %}
+        <p class="archive-entry__excerpt" itemprop="description">{{ item.excerpt | markdownify | remove: '<p>' | remove: '</p>' }}</p>
+      {% endif %}
+    </div>
+
+    {% if teaser %}
+      <div class="archive-entry__media">
+        <img src="{% if teaser contains '://' %}{{ teaser }}{% else %}{{ teaser | prepend: '/images/' | prepend: base_path }}{% endif %}" alt="">
+      </div>
+    {% endif %}
+  </article>
+</div>

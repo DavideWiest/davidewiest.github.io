@@ -1,0 +1,19 @@
+{% include base_path %}
+
+{% if page.previous or page.next %}
+  <nav class="editorial-nav" aria-label="Page">
+    {% if page.previous %}
+      <a class="editorial-nav__item editorial-nav__item--prev" href="{{ base_path }}{{ page.previous.url }}">
+        <span class="editorial-nav__eyebrow">Previous</span>
+        <span class="editorial-nav__title">{{ page.previous.title }}</span>
+      </a>
+    {% endif %}
+
+    {% if page.next %}
+      <a class="editorial-nav__item editorial-nav__item--next" href="{{ base_path }}{{ page.next.url }}">
+        <span class="editorial-nav__eyebrow">Next</span>
+        <span class="editorial-nav__title">{{ page.next.title }}</span>
+      </a>
+    {% endif %}
+  </nav>
+{% endif %}

@@ -1,0 +1,13 @@
+---
+layout: editorial-archive
+title: "Previous Work"
+permalink: /old-work/
+author_profile: false
+sitemap: false
+---
+
+{% for post in site.portfolio %}
+  {% unless post.title == "Clac" or post.title == "ContextFlow" or post.title == "PV Growth Forecasting" %}
+    {% include editorial-archive-item.html item=post %}
+  {% endunless %}
+{% endfor %}
