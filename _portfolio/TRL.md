@@ -13,3 +13,4 @@ The key innovation is that the VICReg loss can be modified into a local version 
 On MNIST, TRL is competitive with backpropagation, Forward-Forward, and Equilibrium Propagation. TRL-S, a simplified variant, achieves similar performance despite its reduced setup. The learned representations are interpretable: first-layer neurons develop specialized receptive fields, and deeper neurons activate selectively for specific input types. We show that TRL can train small RNNs on the simple MNIST-rows problem and builds a moderately organized state-space.
 
 I published a paper on this work, which is available on [Zenodo](https://doi.org/10.5281/zenodo.18673107).
+
