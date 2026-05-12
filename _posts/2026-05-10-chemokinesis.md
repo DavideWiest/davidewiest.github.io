@@ -50,9 +50,9 @@ Let $x^\ast$ be a minimizer, and let
 \rho = \|x - x^\ast\|
 \]
 
-be the distance to it. For a random unit vector $u$ and a fixed unit direction $v$, the inner product $\langle u, v \rangle$ has mean zero and variance $1/d$. The component of a step in the useful direction is typically $O(r/\sqrt{d})$. The rest is transverse.
+be the distance to it. For a random unit vector $u$ and a fixed unit direction $v$, the inner product $\langle u, v \rangle$ has mean zero and variance $1/d$. The component of a step in the useful direction is typically $O(r/\sqrt{d})$. The rest is transverse. So intuitively, as dimensionality increases, we can't rely on random steps to create a residence-of-time effect, because they are increasingly unlikely to pointin the right direction.
 
-There is a second geometric problem. Most of the volume of a high-dimensional ball lies near its boundary. The ratio between the volume of a thin outer shell of thickness $\varepsilon$ and the volume of the whole ball of radius $R$ is approximately
+A complementary perspetive is that of volumes: Most of the volume of a high-dimensional ball lies near its boundary. The ratio between the volume of a thin outer shell of thickness $\varepsilon$ and the volume of the whole ball of radius $R$ is approximately
 
 \[
 1 - \left(1 - \frac{\varepsilon}{R}\right)^d.
@@ -60,7 +60,7 @@ There is a second geometric problem. Most of the volume of a high-dimensional ba
 
 For fixed relative thickness $\varepsilon/R$, this ratio approaches one as $d$ grows. 
 
-This matters because a random walk has no natural reason to move inward. From a fixed target, an unbiased random step tends to increase distance slightly. For small $r/\rho$, the expected change in distance behaves like
+This matters because a random walk has no natural reason to move inward. From a fixed target, an unbiased random step tends to increase distance. For small $r/\rho$, the expected change in distance behaves like
 
 \[
 \mathbb{E}[\Delta \rho] \approx \frac{r^2}{2\rho}\left(1 - \frac{1}{d}\right).
