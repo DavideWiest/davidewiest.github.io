@@ -10,6 +10,6 @@ Temporal Regularized Learning (TRL) is a self-supervised procedure that optimize
 
 The key innovation is that the VICReg loss can be modified into a local version with the help of a small memory per neuron and a lateral intra-layer network, which is mathematically equivalent up to stop-gradient operations. There is no need for biphasic updates, negative samples, or inner-loop convergence. Knowledge about downstream tasks can be injected through the sequence ordering, which means supervised training is possible without abandoning the local learning structure.
 
-On MNIST, TRL is competitive with backpropagation, Forward-Forward, and Equilibrium Propagation. TRL-S, a simplified variant, achieves similar performance despite its reduced setup. The learned representations are interpretable: first-layer neurons develop specialized receptive fields, and deeper neurons activate selectively for specific input types.
+On MNIST, TRL is competitive with backpropagation, Forward-Forward, and Equilibrium Propagation. TRL-S, a simplified variant, achieves similar performance despite its reduced setup. The learned representations are interpretable: first-layer neurons develop specialized receptive fields, and deeper neurons activate selectively for specific input types. We show that TRL can train small RNNs on the simple MNIST-rows problem and builds a moderately organized state-space.
 
 I published a paper on this work, which is available on [Zenodo](https://doi.org/10.5281/zenodo.18673107).
