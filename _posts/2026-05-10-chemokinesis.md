@@ -38,7 +38,7 @@ $$
 dX_t = \sigma(X_t)\,dW_t,
 $$
 
-where $W_t$ is isotropic Brownian motion. There is no explicit drift term. But if $\sigma(x)$ is smaller in some regions, the particle moves more slowly there, biasing the stationary distribution toward low-mobility regions. In fact, Moran et al. have shown that active colloids undergoing chemokinesis converge to a stationary distribution whose density is inversely proportional to the local mobility, so regions where the particle moves slowly accumulate disproportionately more mass even without any directional sensing. This is called the residence-of-time effect, and one can exploit it by coupling mobility to cost. We will now explore how this behaves in high dimensions.
+where $W_t$ is isotropic Brownian motion. There is no explicit drift term. But if $\sigma(x)$ is smaller in some regions, the particle moves more slowly there, biasing the stationary distribution toward low-mobility regions. In fact, Moran et al. have shown that chemokinetic active colloids converge to a stationary distribution whose density is inversely proportional to the local mobility, so regions where the particle moves slowly accumulate disproportionately more mass even without any directional sensing. This is called the residence-of-time effect, and one can exploit it by coupling mobility to cost. We will now explore how this behaves in high dimensions.
 
 ## Where The Curse of Dimensionality Enters
 

@@ -1,6 +1,11 @@
 .page--homepage {
   .page__content {
     margin-top: 2.5rem;
+
+    h2 {
+      font-family: $display-font-family;
+      font-weight: 600;
+    }
   }
 }
 
