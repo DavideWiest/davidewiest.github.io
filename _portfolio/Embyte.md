@@ -1,5 +1,6 @@
 ---
 title: "Embyte"
+hidden: true
 excerpt: "A customizable embed generator for websites, inspired by Discord's rich embeds"
 collection: portfolio
 link: "https://embyte.davidewiest.com"

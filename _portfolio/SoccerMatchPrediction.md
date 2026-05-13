@@ -1,5 +1,6 @@
 ---
 title: "Soccer Match Prediction"
+hidden: true
 excerpt: "A comparison of goal-count regression versus win/loss/draw classification for football match forecasting"
 collection: portfolio
 link: "https://medium.com/the-modern-scientist/my-process-of-making-a-soccer-game-prediction-model-feb218a13aea"

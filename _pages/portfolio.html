@@ -6,9 +6,9 @@ author_profile: false
 ---
 
 {% for post in site.portfolio %}
-  {% if post.title == "Clac" or post.title == "ContextFlow" or post.title == "PV Growth Forecasting" %}
+  {% unless post.hidden %}
     {% include editorial-archive-item.html item=post %}
-  {% endif %}
+  {% endunless %}
 {% endfor %}
 
 

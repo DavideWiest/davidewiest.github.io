@@ -1,5 +1,6 @@
 ---
 title: "Finsights"
+hidden: true
 excerpt: "A newsletter service that sends automated performance updates for selected stocks"
 collection: portfolio
 link: "https://finsights.info"

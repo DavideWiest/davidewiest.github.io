@@ -1,5 +1,6 @@
 ---
 title: "Instadata"
+hidden: true
 excerpt: "A scalable Instagram scraper built with Django for data science pipelines"
 collection: portfolio
 link: "https://github.com/DavideWiest/idww"
