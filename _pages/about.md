@@ -18,8 +18,8 @@ I am currently exploring underexplored parts of the training stack, especially p
 - [Gradient Routing for Continual Learning](/work/) — testing whether sparsity can reduce catastrophic forgetting
 
 
-Outside of work, I go on long walks when I am stuck on a problem, and get genuinely excited by ideas that change how a field operates rather than marginally improving what already exists. Philosophically I lean toward anti-essentialism, naturalism, and structuralism (with bundle theory as a useful framing). In terms of how I operate, I want to get things done and be maximally pragmatic, but I also want to experiment and do creative things even when their purpose is not immediately clear.
+Outside of work, I go on long walks when I am stuck on a problem. Philosophically I lean toward anti-essentialism, naturalism, and structuralism (with bundle theory as a useful framing).
 
 ---
 
-[davide.wiest2@gmail.com](mailto:davide.wiest2@gmail.com) · [GitHub](https://github.com/DavideWiest)
+[davide.wiest2@gmail.com](mailto:davide.wiest2@gmail.com)
