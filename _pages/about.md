@@ -9,7 +9,7 @@ redirect_from:
   - /about.html
 ---
 
-I am currently exploring underexplored parts of the training stack, especially practically applicable approaches that enhance the capabilities models acquire during training. I want to understand ML on both a theoretical and practical level, which means reading papers, implementing ideas, and occasionally discovering why something that sounded elegant falls apart in practice.
+I am currently exploring underexplored parts of the training stack, with a focus on approaches that enhance the capabilities models acquire during training. I want to understand ML on both a theoretical and practical level, which means reading papers, implementing ideas, and occasionally discovering why something that sounded elegant falls apart in practice.
 
 **[TRL](/work/)**
 
@@ -27,6 +27,6 @@ An analytical approach to neural network initialization using covariance and eig
 
 Sparsity-based gradient routing to reduce catastrophic forgetting in sequential task settings.
 
-Outside of work, I go on long walks when I am stuck on a problem. Philosophically I lean toward anti-essentialism, naturalism, and structuralism (with bundle theory as a useful framing).
+Outside of work, I go on long walks when I am stuck on a problem or visit the library for inspiration. Philosophically I lean toward anti-essentialism, naturalism, and structuralism (with bundle theory as a useful framing).
 
-[davide.wiest2@gmail.com](mailto:davide.wiest2@gmail.com) · [GitHub](https://github.com/DavideWiest)
+[davide.wiest2@gmail.com](mailto:davide.wiest2@gmail.com)
