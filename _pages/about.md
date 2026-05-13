@@ -11,11 +11,22 @@ redirect_from:
 
 I am currently exploring underexplored parts of the training stack, especially practically applicable approaches that enhance the capabilities models acquire during training. I want to understand ML on both a theoretical and practical level, which means reading papers, implementing ideas, and occasionally discovering why something that sounded elegant falls apart in practice.
 
-- [TRL](/work/) — a local, self-supervised learning procedure that is local in time and space
-- [pptrain](/work/) — a PyTorch library for pre-pretraining language models on synthetic tasks
-- [Closed-Form Initialization](/work/) — exploring whether neural networks can be initialized analytically
-- [Gradient Routing for Continual Learning](/work/) — testing whether sparsity can reduce catastrophic forgetting
+**[TRL](/work/)**
+
+A self-supervised learning procedure that optimizes each neuron locally, without backpropagation.
+
+**[pptrain](/work/)**
+
+A PyTorch library for pre-pretraining language models on synthetic tasks.
+
+**[Closed-Form Initialization](/work/)**
+
+An analytical approach to neural network initialization using covariance and eigendecomposition.
+
+**[Gradient Routing for Continual Learning](/work/)**
+
+Sparsity-based gradient routing to reduce catastrophic forgetting in sequential task settings.
 
 Outside of work, I go on long walks when I am stuck on a problem. Philosophically I lean toward anti-essentialism, naturalism, and structuralism (with bundle theory as a useful framing).
 
-[davide.wiest2@gmail.com](mailto:davide.wiest2@gmail.com)
+[davide.wiest2@gmail.com](mailto:davide.wiest2@gmail.com) · [GitHub](https://github.com/DavideWiest)
