@@ -141,7 +141,8 @@ card--tertiary {
 
 a {
   text-decoration: underline;
-  text-underline-offset: 0.15em;
+  text-underline-offset: 0.19em;
+  text-decoration-thickness: 1.25px;
 
   &:focus {
     @extend %tab-focus;
