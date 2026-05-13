@@ -4,7 +4,7 @@ title: "Davide Wiest"
 layout: homepage
 author_profile: false
 hero_intro: >-
-  I am a computer science student at TU Darmstadt, interested in machine learning theory, systems, and research at the intersection of both. I am currently exploring underexplored parts of the training stack, especially practically applicable approaches that enhance the capabilities models acquire during training.
+  I am a computer science student at TU Darmstadt, interested in machine learning theory, systems, and research at the intersection of both.
 redirect_from: 
   - /about/
   - /about.html
@@ -12,7 +12,7 @@ redirect_from:
 
 ## Endeavors and Interests
 
-I study computer science at TU Darmstadt and have been here since winter 2025. My aim is a research-oriented career in machine learning, though I am still figuring out exactly which problems deserve the most attention. I want to understand ML on both a theoretical and practical level, which means reading papers, implementing ideas, and occasionally discovering why something that sounded elegant falls apart in practice.
+I study computer science at TU Darmstadt and have been here since winter 2025. My aim is a research-oriented career in machine learning, though I am still figuring out exactly which problems deserve the most attention. I want to understand ML on both a theoretical and practical level, which means reading papers, implementing ideas, and occasionally discovering why something that sounded elegant falls apart in practice. I am currently exploring underexplored parts of the training stack, especially practically applicable approaches that enhance the capabilities models acquire during training.
 
 ## Previous Work
 

@@ -20,4 +20,4 @@ The version that works freezes the upper trunk after pretraining and only adapts
 
 I also added a published SplitMNIST class-incremental benchmark and explored a task-blind online slot mechanism where sparse computation is discovered online by novelty detection. This reached 0.825 final accuracy with 0.215 forgetting, against a dense baseline of 0.199 with 0.998 forgetting.
 
-The takeaway is that sparse gradient routing is most effective as an auxiliary mechanism: once sparse computation is localized to the right layer and discovered online, it can meaningfully reduce forgetting even without task identity.
+The takeaway is that sparse gradient routing works best as an auxiliary mechanism rather than a standalone solution. Localizing plasticity to the right layer helps, and discovering sparse computation online without task identity is possible, but in practice one still needs stronger structural mechanisms to meaningfully reduce forgetting at scale.
