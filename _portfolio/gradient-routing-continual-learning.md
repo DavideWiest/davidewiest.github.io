@@ -2,6 +2,7 @@
 title: "Gradient Routing for Continual Learning"
 excerpt: "Evaluating sparsity and gradient-reweighted updates as a mechanism for continual learning"
 collection: portfolio
+date: 2026-02-01
 link: "https://github.com/Axym-Labs/gradient-routing-continual-learning"
 link_label: "Repository"
 ---

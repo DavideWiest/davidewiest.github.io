@@ -2,6 +2,7 @@
 title: "Clac"
 excerpt: "A series of programming language projects exploring pattern matching, macro expansion, and interpreter design"
 collection: portfolio
+date: 2024-01-01
 link: "https://github.com/DavideWiest/Clac3"
 link_label: "Repository"
 ---

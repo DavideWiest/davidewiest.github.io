@@ -5,7 +5,8 @@ permalink: /work/
 author_profile: false
 ---
 
-{% for post in site.portfolio %}
+{% assign sorted_posts = site.portfolio | sort: 'date' | reverse %}
+{% for post in sorted_posts %}
   {% unless post.hidden %}
     {% include editorial-archive-item.html item=post %}
   {% endunless %}

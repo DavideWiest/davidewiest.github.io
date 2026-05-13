@@ -2,6 +2,7 @@
 title: "Closed-Form Initialization"
 excerpt: "An analytical approach to neural network initialization using covariance and eigendecomposition"
 collection: portfolio
+date: 2026-03-01
 link: "https://github.com/Axym-Labs/closed-form-initialization"
 link_label: "Repository"
 ---

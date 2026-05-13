@@ -2,6 +2,7 @@
 title: "Temporal Regularized Learning"
 excerpt: "A highly local, self-supervised learning procedure that optimizes each neuron individually"
 collection: portfolio
+date: 2025-06-01
 link: "https://github.com/Axym-Labs/TRL"
 link_label: "Repository"
 ---
