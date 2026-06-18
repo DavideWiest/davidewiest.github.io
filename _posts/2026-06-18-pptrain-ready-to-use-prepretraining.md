@@ -9,7 +9,7 @@ tags:
   - software
 ---
 
-Pre-pretraining is a good idea trapped in an awkward workflow. Before training a language model on natural text, first train it on synthetic tasks that may teach useful structure. Cellular automata, symbolic transformations, mathematical primitives all fit this pattern. One hurdle towords shipping this in production is that most of the work lives in paper-specific code, hidden data generators, and one-off training scripts. Another one is verifying the prepretrainer was instantiated correctly and actually has a positive affect. The package [`pptrain`](https://github.com/Axym-Labs/pptrain) can help practitioners with that:
+Pre-pretraining is a good idea trapped in an awkward workflow. Before training a language model on natural text, first train it on synthetic tasks that may teach useful structure. Cellular automata, symbolic transformations, mathematical primitives all fit this pattern. One hurdle toward shipping this in production is that most of the work lives in paper-specific code, hidden data generators, and one-off training scripts. Another one is verifying the prepretrainer was instantiated correctly and actually has a positive effect. The package [`pptrain`](https://github.com/Axym-Labs/pptrain) can help practitioners with that:
 
 ## Ready to use
 

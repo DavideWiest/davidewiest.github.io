@@ -11,25 +11,64 @@ div.highlighter-rouge, figure.highlight {
   background-color: $code-background-color;
   box-shadow: $box-shadow;
 
-  &:before {
-    position: absolute;
-    top: 0;
-    right: 0;
-    padding: 0.5em;
-    background-color: $lighter-gray;
-    content: "\f121";
-    font-family: "fontawesome" !important;
-    font-size: $type-size-6;
-    line-height: 1;
-    text-transform: none;
-    speak: none;
+  &.has-copy-button {
+    padding-top: 2.5rem;
   }
 
   .highlight {
     margin: 0;
     font-family: $monospace;
-    font-size: $type-size-7;
-    line-height: 1.8;
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  pre {
+    margin: 0;
+  }
+}
+
+.code-copy-button {
+  appearance: none;
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-height: 1.8rem;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+  background: #fff;
+  color: $text-color;
+  font-family: $sans-serif;
+  font-size: $type-size-6;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.86;
+  transition: opacity 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+
+  &:hover,
+  &:focus {
+    border-color: $light-gray;
+    background-color: $lighter-gray;
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: 2px solid rgba($info-color, 0.25);
+    outline-offset: 2px;
+  }
+
+  svg {
+    width: 0.9rem;
+    height: 0.9rem;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
   }
 }
 

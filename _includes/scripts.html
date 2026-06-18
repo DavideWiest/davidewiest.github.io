@@ -1,4 +1,87 @@
 <script src="{{ base_path }}/assets/js/main.min.js"></script>
 
+<script>
+  (function () {
+    var copyIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+    var checkIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>';
+
+    function writeClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        return navigator.clipboard.writeText(text);
+      }
+
+      return new Promise(function (resolve, reject) {
+        var textarea = document.createElement("textarea");
+        textarea.value = text;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.top = "0";
+        textarea.style.left = "0";
+        textarea.style.width = "1px";
+        textarea.style.height = "1px";
+        textarea.style.opacity = "0";
+        document.body.appendChild(textarea);
+        textarea.focus();
+        textarea.select();
+
+        try {
+          if (document.execCommand("copy")) {
+            resolve();
+          } else {
+            reject(new Error("Copy command was not accepted."));
+          }
+        } catch (error) {
+          reject(error);
+        } finally {
+          document.body.removeChild(textarea);
+        }
+      });
+    }
+
+    function setButton(button, icon, label) {
+      button.innerHTML = icon + "<span>" + label + "</span>";
+      button.setAttribute("aria-label", label + " code");
+      button.setAttribute("title", label + " code");
+    }
+
+    function addCopyButtons() {
+      var blocks = document.querySelectorAll("div.highlighter-rouge, figure.highlight");
+
+      blocks.forEach(function (block) {
+        var code = block.querySelector("pre code, pre");
+
+        if (!code || block.querySelector(".code-copy-button")) {
+          return;
+        }
+
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "code-copy-button";
+        setButton(button, copyIcon, "Copy");
+        block.classList.add("has-copy-button");
+
+        button.addEventListener("click", function () {
+          writeClipboard(code.textContent).then(function () {
+            setButton(button, checkIcon, "Copied");
+            window.setTimeout(function () {
+              setButton(button, copyIcon, "Copy");
+            }, 1400);
+          }).catch(function () {
+            setButton(button, copyIcon, "Retry");
+          });
+        });
+
+        block.appendChild(button);
+      });
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", addCopyButtons);
+    } else {
+      addCopyButtons();
+    }
+  }());
+</script>
+
 {% include analytics.html %}
 {% include /comments-providers/scripts.html %}
