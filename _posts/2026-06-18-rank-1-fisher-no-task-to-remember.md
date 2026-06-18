@@ -79,9 +79,7 @@ $$
 
 The leading-order map is therefore the same for all old data distributions with the same forward noising process. The task enters only through lower-order corrections as signal returns. Hence the low-SNR theorem identifies a distribution-independent denoising scale, not an old-task preservation map.
 
-This is not a weak task signal. At leading order it is no task signal. An empirical Fisher built from this limit can constrain the universal Gaussian denoising transformation. It cannot identify which parameter directions preserve the old distribution, because the old distribution has disappeared from the object being analyzed.
-
-The paper's main theorem is therefore strongest in the regime where the claimed continual-learning interpretation is weakest.
+This is not a weak task signal. At leading order it is no task-dependent signal. Within the low-SNR framework used to motivate the continual-learning penalty, the rank-1 direction describes a universal Gaussian denoising scale, identical for every data distribution sharing the same forward process. EWC is then asked to remember something that, in this framework, was never learned as an old-task fact. The inconsistency is structural: the object that supplies the rank-1 direction contains no old-task content, while the continual-learning interpretation requires exactly such content.
 
 ## 3. The all-timestep implementation leaves the framework
 
@@ -93,7 +91,7 @@ The paper makes the all-timestep averaging explicit. The problem is not that the
 
 This deviation is not a minor implementation detail. It is the reason the method can work at all. A pure low-SNR rank-1 penalty protects the task-independent Gaussian denoising scale. The all-timestep surrogate reintroduces task-dependent denoising outside the theorem.
 
-Section 3.3 calls this a practical surrogate. Nearby, the paper frames the same rank-1 Fisher construction as enabling a more effective application of EWC to continual learning and as effectively constraining replay-induced drift. That framing is not a computational justification: evaluating a restricted set of timesteps is not more expensive than averaging over all of them. The justification is empirical, namely that the all-timestep mixture works better than the object analyzed by the theory. But then the implementation is no longer the method justified by the low-SNR framework.
+Section 3.3 calls this a practical surrogate. Nearby, the paper frames the same rank-1 Fisher construction as enabling a more effective application of EWC to continual learning and as effectively constraining replay-induced drift. That framing is not a computational justification: evaluating a restricted set of timesteps is not more expensive than averaging over all of them. Hence the justification is empirical, namely that the all-timestep mixture works better than the object analyzed by the theory. But then the implementation is no longer the method justified by the low-SNR framework. For that reason, a reader can plausibly interpret this bridge as intentionally misleading: the working method is rhetorically attached to the low-SNR theorem, but the bridge succeeds by leaving the theorem's regime.
 
 ## 4. Approximately linear is not linear
 
@@ -232,14 +230,12 @@ Second, test timestep-restricted EWC matrices. If low SNR is the theoretical sou
 
 Third, prove or measure nonlinear eigenspace stability. The linear surrogate can support the neural-network claim only after the residual terms are controlled relative to the eigengap.
 
-Fourth, stop using the true-Fisher interpretation for the rank-1 object. The result concerns an empirical second moment of surrogate-loss gradients. That object may still be useful, but it should be analyzed as a preservation or gradient-variance object, not as Fisher information in the KL sense.
+Fourth, stop using the true-Fisher interpretation for the rank-1 object. The result concerns an empirical second moment of surrogate-loss gradients. That object may still be useful, but it should be analyzed differently. For this reason, one might use [Wiest's IEWC framework](/files/improved-elastic-weight-consolidation.pdf), which derives Elastic Weight Consolidation and the empirical Fisher in a more direct optimization-preservation framework.
 
 ## 7. Review context
 
-The [OpenReview page](https://openreview.net/forum?id=zCZcbRsc4g) lists this work as an ICLR 2026 poster. ICLR is a conference, not a journal, but it is still one of the main venues in machine learning.
+The [OpenReview page](https://openreview.net/forum?id=zCZcbRsc4g) lists this work as an ICLR 2026 poster. ICLR is one of the main venues in machine learning.
 
-That matters because the errors above are not hidden in implementation details. They concern the central chain from theorem to algorithm to empirical claim. The theorem is about a task-independent limit. The algorithm depends on leaving that limit. The linear argument lacks the perturbation step needed for the nonlinear model. The true Fisher calculation points in the opposite direction.
+That matters because the errors above are not hidden in implementation details. Rather, they concern the central chain from theorem to algorithm to empirical claim. If we inspect that chain, the theorem is about a task-independent limit, whereas the algorithm depends on leaving that limit. Moreover, the linear argument lacks the perturbation step needed for the nonlinear model, and the true Fisher calculation points precisely in the opposite direction.
 
-This is also why the wording around all-timestep averaging matters. The paper explicitly says the implementation averages over timesteps, and this is the step that makes the method compatible with task-dependent denoising. Section 3.3 then describes the resulting object as a practical surrogate, while the surrounding text frames the rank-1 construction as more effective for continual learning. The practical part is not the issue. The theoretical alignment is. A reader can plausibly interpret this bridge as intentionally misleading: the working method is rhetorically attached to the low-SNR theorem, but the bridge succeeds by leaving the theorem's regime.
-
-This is one instance of a broader review problem in modern machine learning. A plausible empirical story, a mathematical calculation, and a working implementation can pass review even when they refer to different objects. That is not only an author-level failure. Review is the mechanism that should enforce alignment between definitions, assumptions, proofs, and claims. Here, that mechanism did not do its job.
+This, however, is not just a failure of the authors. It is also one instance of a broader problem in modern machine learning research. A plausible empirical story, a mathematical calculation, and a working implementation can sound correct even when they contain multiple critical inconsistencies. For that reason, review is the mechanism that should look at the details, spot issues, and enforce alignment to proper scientific practice. While the cost of publishing *something* is falling, and so is the apparent average quality of published work, proper reviews are becoming more crucial. Here, that mechanism clearly did not do its job.
