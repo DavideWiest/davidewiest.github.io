@@ -1,5 +1,5 @@
 ---
-title: "pptrain, the ready-to-use pre-pretraining library"
+title: "pptrain, a ready-to-use pre-pretraining library"
 date: 2026-06-18
 permalink: /posts/2026/06/pptrain-ready-to-use-prepretraining/
 tags:
