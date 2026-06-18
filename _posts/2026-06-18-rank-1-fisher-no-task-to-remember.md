@@ -1,5 +1,5 @@
 ---
-title: "The Rank-1 Fisher Has No Task to Remember"
+title: "Critical flaws in 'Avoid Catastrophic Forgetting with Rank-1 Fisher from Diffusion Models'"
 date: 2026-06-18
 permalink: /posts/2026/06/rank-1-fisher-no-task-to-remember/
 tags:
