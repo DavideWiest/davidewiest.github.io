@@ -9,13 +9,9 @@ tags:
   - parameter-sharing
 ---
 
-Depth in a Transformer is a sequence of learned operators. In an ordinary depth-$L$ decoder, each layer has its own block $B_l$, and the residual stream evolves as
+Exisiting literatuer explores instantiations of parameter sharing in a highly regular way. For example, HRM can be interpreted as sharing parameters across depth/time. It is therefore warranted to ask whether irrelular instantiations work as well. The immediate benefit of irregularity is a less restricted modeling capacity of the network, while fully retaining the upside of reducing memory requirements.
 
-$$
-h_{l+1}=B_l(h_l), \qquad l=1,\ldots,L.
-$$
-
-Parameter sharing changes this object. Instead of learning $L$ separate blocks, we learn a smaller bank of $K$ blocks and choose a schedule
+Instead of learning, $L$ separate blocks, we learn a smaller bank of $K$ blocks and choose a schedule
 
 $$
 s=(s_1,\ldots,s_L), \qquad s_l \in \{1,\ldots,K\},
@@ -27,7 +23,7 @@ $$
 h_{l+1}=B_{s_l}(h_l).
 $$
 
-Once sharing is written this way, the architecture has two degrees of freedom. The first is the number of learned blocks $K$. The second is the depth schedule $s$. Therefore, a shared Transformer is not fully specified by the amount of sharing alone. It is specified by where each reused operator acts.
+Once sharing is written this way, the architecture has two degrees of freedom. The first is the number of learned blocks $K$. The second is the depth schedule $s$. Therefore, a weight-shared Transformer can be seen as not fully specified by the amount of sharing alone. It is specified by where each reused operator acts.
 
 The baseline schedules here are regular. One-block sharing uses the same operator at every depth. Cyclic sharing uses a small bank periodically, for example
 
@@ -35,23 +31,16 @@ $$
 [0,1,2,0,1,2,0,1].
 $$
 
-These schedules are simple, deterministic, and easy to implement. They also impose a strong algebraic constraint on depth: positions separated by the period receive the same update. Irregular sharing keeps the same block bank and the same parameter count, then changes only the schedule. For example, with four blocks and twelve depth positions, one irregular schedule is
+These schedules are simple, deterministic, and easy to implement. They also impose a strong algebraic constraint on depth: positions separated by the period receive the same update. Irregular sharing keeps the same block bank and the same parameter count, then changes only the schedule. 
 
-$$
-[0,0,1,1,2,0,3,2,1,3,3,0].
-$$
+Let's now ask ourselves, does this schedule itself change language-model validation loss?
 
-The central empirical question is therefore precise: at fixed shared-block count, does the schedule itself change language-model validation loss?
+## Method
 
-## method
+I tested this with decoder-only causal Transformers. For the shared-block comparison, cyclic and irregular models used the same number of learned blocks and the same non-embedding parameter count. They also used matched initialization for the shared blocks. Thus the comparison changes the depth schedule, not the size of the model. For more information, read Appendix A.
+We publish the code [here](https://github.com/Axym-Labs/irregular-parameter-sharing)
 
-I tested this with decoder-only causal Transformers. Each model used learned token embeddings, learned positional embeddings, pre-norm self-attention blocks, GELU MLPs, tied output embeddings, AdamW, sequence length 256, and the GPT-2 tokenizer for the token-level experiment. The practical reference model was the ordinary unshared Transformer with the same depth and width. The simple same-parameter baseline was cyclic sharing, since it uses the same number of shared blocks as the irregular models.
-
-For the shared-block comparison, cyclic and irregular models used the same number of learned blocks and the same non-embedding parameter count. They also used matched initialization for the shared blocks. Thus the comparison changes the depth schedule, not the size of the model.
-
-The main token-level experiment used local OpenWebText shards, 19M training tokens, 1M validation tokens, depth 12, width 384, 6 attention heads, batch size 32, and 3000 training steps. I ran it with seeds 0, 1, and 2. I also ran a short random schedule search for each seed: each candidate schedule trained for 600 steps, the best candidate schedule was selected, and then that schedule was retrained from scratch for the full 3000-step comparison.
-
-## token-level result
+## Token-Level Result
 
 The fixed schedules were:
 
@@ -100,7 +89,7 @@ A second token-level run used the same GPT-2 tokenizer and local OpenWebText sou
 
 This run has the same structure as the main run. At equal shared-block count, hand irregular sharing improves over cyclic sharing by 0.0148 CE, and searched irregular sharing improves over cyclic sharing by 0.0171 CE.
 
-## replication on character language modeling
+## Replication on Character Language Modeling
 
 The same schedule question was tested on a character-level Transformer language model trained on local Lichess PGN data. This experiment is smaller than OpenWebText and gives a seed-level check because it holds the same schedule comparison fixed.
 
@@ -110,28 +99,19 @@ The same schedule question was tested on a character-level Transformer language 
 | 1 | 0.6283 | 0.6257 | 0.6064 | not run |
 | 2 | 0.5788 | 0.5813 | 0.5666 | 0.5612 |
 
-The searched irregular schedule beats cyclic sharing in all three seeds. The hand schedule beats cyclic sharing in two seeds and loses in one seed. Therefore, irregularity itself is not enough; the schedule has to be selected. This is exactly what the schedule formulation predicts. Once $s$ is an architectural object, choosing $s$ is part of model design.
+The searched irregular schedule beats cyclic sharing in all three seeds. The hand schedule beats cyclic sharing in two seeds and loses in one seed. Once $s$ is an architectural object, choosing $s$ is part of model design.
 
-## interpretation
+## Interpretation
 
 A cyclic schedule assumes that depth is periodic. This assumption is convenient because it converts depth into repeated applications of a small operator bank. It also makes the first, fourth, and seventh transformations share weights in an eight-layer three-block model. Nothing in the residual stream requires this periodic equivalence.
 
 An irregular schedule removes that equivalence while keeping the same learned blocks. In the hand schedule above, block 0 appears twice at the start, block 3 enters only after six transformations, and the final positions reuse blocks 1, 3, 3, and 0. In this view, a shared Transformer resembles an unrolled dynamical system with a small set of operators and a discrete control sequence. The number of operators controls parameter count. The control sequence controls how those operators are composed.
 
-This matters for language models because non-embedding Transformer blocks are the expensive part that grows with depth and width. At LLM scale, sharing a block bank is a direct parameter-compression axis. A regular schedule spends that axis in the most constrained way. An irregular schedule keeps the compression and gives the depth computation more compositions.
+This matters for large models, such as modern language models because non-embedding Transformer blocks are the expensive part that grows with depth and width. At LLM scale, sharing a block bank is a direct parameter-compression axis. A regular schedule spends that axis in the most constrained way. Conversely, an irregular schedule keeps the compression and gives the depth computation more compositions.
 
 The experiment establishes the concrete schedule effect: with the same learned blocks, the non-periodic schedules achieve lower validation loss than the cyclic schedule. The unshared model remains the practical reference point for maximum quality at this width and depth. Accordingly, schedule learning belongs inside the parameter-sharing problem: choose the block bank, choose the depth schedule, and then scale the comparison to larger shared-block banks, deeper Transformers, and longer training.
 
-## artifact
+## Appendix A: Experimental Setup
 
-The run writes exact metrics, schedules, and raw histories under:
-
-`/home/davwis/main/exploration/irregular_token_lm/openwebtext_large_seed0/`
-
-`/home/davwis/main/exploration/irregular_token_lm/openwebtext_large_seed1/`
-
-`/home/davwis/main/exploration/irregular_token_lm/openwebtext_large_seed2/`
-
-The corrected experiment report, including failed model-idea tests and the character-LM replication table, is under:
-
-`/home/davwis/main/exploration/docs/corrected_model_ideas/artifacts/corrected_experiment_report.md`
+Each model used learned token embeddings, learned positional embeddings, pre-norm self-attention blocks, GELU MLPs, tied output embeddings, AdamW, sequence length 256, and the GPT-2 tokenizer for the token-level experiment. The practical reference model was the ordinary unshared Transformer with the same depth and width. The simple same-parameter baseline was cyclic sharing, since it uses the same number of shared blocks as the irregular models.
+The main token-level experiment used local OpenWebText shards, 19M training tokens, 1M validation tokens, depth 12, width 384, 6 attention heads, batch size 32, and 3000 training steps. I ran it with seeds 0, 1, and 2. I also ran a short random schedule search for each seed: each candidate schedule trained for 600 steps, the best candidate schedule was selected, and then that schedule was retrained from scratch for the full 3000-step comparison.
