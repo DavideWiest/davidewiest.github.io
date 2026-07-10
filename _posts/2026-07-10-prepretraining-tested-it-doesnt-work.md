@@ -11,7 +11,7 @@ tags:
 
 Prepretraining denotes a two-stage training regime: a language-model architecture is first trained on synthetic or abstract data, and only then trained on natural language. This setting is relevant because language-model training is increasingly constrained by data quality, compute allocation, and the finite supply of public human-written text. In that context, scaling-law work established the empirical role of model, data, and compute scale, compute-optimal training sharpened the importance of token budgets, and data-supply analyses motivate methods that improve sample efficiency ([Kaplan et al. 2020](https://arxiv.org/abs/2001.08361), [Hoffmann et al. 2022](https://arxiv.org/abs/2203.15556), [Villalobos et al. 2022](https://arxiv.org/abs/2211.04325)).
 
-The central empirical question is whether synthetic upstream training gives the later natural-text phase a better initialization. Recent work instantiates this question with NCA-generated sequences, artificial languages, procedural data, simpler synthetic tasks, LIME-style reasoning tasks, and synthetic summarization tasks ([Lee et al. 2026](https://arxiv.org/abs/2603.10055), [Ri and Tsuruoka 2022](https://aclanthology.org/2022.acl-long.504/), [Jiang et al. 2026](https://arxiv.org/abs/2601.21725), [Wu et al. 2022](https://arxiv.org/abs/2206.10139), [Wu et al. 2021](https://proceedings.mlr.press/v139/wu21c.html), [Krishna et al. 2021](https://aclanthology.org/2021.findings-emnlp.273/)). Across these variants, the transfer claim is stronger than cheap data generation: synthetic data must induce structure that remains useful after the transition to natural text.
+The central empirical question is whether synthetic upstream training gives the later natural-text phase a better initialization. The tested mechanisms were NCA-generated sequences, LIME-style induction, deduction, and abduction tasks, simpler copy/set/query tasks, procedural programs, Dyck programs, and synthetic summarization transformations. These correspond to the mechanisms proposed or used by [Lee et al. 2026](https://arxiv.org/abs/2603.10055), [Wu et al. 2021](https://proceedings.mlr.press/v139/wu21c.html), [Wu et al. 2022](https://arxiv.org/abs/2206.10139), [Jiang et al. 2026](https://arxiv.org/abs/2601.21725), and [Krishna et al. 2021](https://aclanthology.org/2021.findings-emnlp.273/), with neural cellular automata also grounded in the construction of [Mordvintsev et al. 2020](https://distill.pub/2020/growing-ca). Across these variants, the transfer claim is stronger than cheap data generation: synthetic data must induce structure that remains useful after the transition to natural text.
 
 This evaluation tests that claim with [`pptrain`](https://github.com/Axym-Labs/pptrain), using the Pythia-410M architecture and tokenizer, a 12,288-token context length, three seeds, public Hugging Face text datasets, and six synthetic task families. To keep the comparison explicit, the baseline is random initialization followed by downstream text training, while the natural-text warmup is treated as a separate method, called NLP prepretraining, rather than as the baseline.
 
@@ -40,7 +40,7 @@ Each task used three conditions per seed:
 
 The public text data were loaded through Hugging Face Datasets ([Lhoest et al. 2021](https://arxiv.org/abs/2109.02846)). General-text tasks used `HuggingFaceFW/fineweb-edu`, `sample-10BT`, which is part of FineWeb-Edu ([Penedo et al. 2024](https://arxiv.org/abs/2406.17557), [dataset card](https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu)); the math task used `HuggingFaceTB/finemath`, `finemath-4plus` ([dataset card](https://huggingface.co/datasets/HuggingFaceTB/finemath)); and the summarization task used `vblagoje/cc_news` ([dataset card](https://huggingface.co/datasets/vblagoje/cc_news)). In all three cases, the datasets were streamed with separate skip offsets for warmup, train, and eval slices.
 
-The six synthetic task families were NCA, LIME, Simpler tasks, Procedural, Dyck, and Summarization. Since the protocol uses public datasets and a shared bounded setup, it is a proxy study rather than an exact reproduction of every original corpus, schedule, or training budget. The scope is therefore to test whether the same synthetic methods improve later NLP training under one shared, public, multi-seed protocol.
+The six synthetic task families were NCA, LIME, Simpler tasks, Procedural, Dyck, and Summarization. NCA used the `paper_web_text` preset from the NCA language-modeling mechanism; LIME used the `paper_benchmark_100k` symbolic-reasoning preset; Simpler tasks used the `paper_unary_core_100k` copy/set/query mix; Procedural used the `paper_set_len64` program preset; Dyck used the `paper_k64` bracket-language preset; and Summarization used the `paper_ourtasks_subset_100k` synthetic-document preset. Since the protocol uses public datasets and a shared bounded setup, it is a proxy study rather than an exact reproduction of every original corpus, schedule, or training budget. The scope is therefore to test whether the same synthetic methods improve later NLP training under one shared, public, multi-seed protocol.
 
 <figure>
   <img src="/images/pptrain-replication/claim_matrix.png" alt="Claim matrix for the pptrain proxy run" style="width:100%;">
@@ -84,7 +84,12 @@ The loss curves show the same ordering over training rather than only at the fin
   <figcaption><strong>Figure 5.</strong> Summary heatmap of the main effect sizes. Each column is scaled separately for readability; comparisons across columns should use the printed values rather than the color intensity.</figcaption>
 </figure>
 
-NCA also failed at the upstream task itself: held-out synthetic next-patch token accuracy was essentially zero, averaging 0.0024% across seeds. Because the implementation had reference-parity checks against paper code fixtures, this result is informative about the training mechanism rather than just the generator implementation. In this run, a validated task generator did not produce a useful upstream learning problem for the model, so the failure cannot be reduced to a downstream evaluation artifact.
+The NCA condition is the clearest mechanistic failure. Figure 6 shows the diagnostic in one place: held-out synthetic next-patch token accuracy was 0.0024%, the transferred model finished at 6.779 downstream CE versus 6.232 for scratch and 6.044 for NLP prepretraining, and its midlayer CKA to the NLP-prepretrained model was 0.151. The transferred NCA model also had an effective rank of 4.6, compared with 48.4 for scratch. Because the implementation had reference-parity checks against paper code fixtures, this result is informative about the training mechanism rather than just the generator implementation. In this run, a validated task generator did not produce a useful upstream learning problem for the model, so the failure cannot be reduced to a downstream evaluation artifact.
+
+<figure>
+  <img src="/images/pptrain-replication/nca_showcase.png" alt="NCA upstream accuracy, downstream loss, and representation diagnostics" style="width:100%;">
+  <figcaption><strong>Figure 6.</strong> NCA failed before useful transfer. The synthetic task was barely learned, downstream eval loss was worse than both scratch and NLP prepretraining, and the transferred representation was far from the NLP-prepretrained geometry.</figcaption>
+</figure>
 
 ## Diagnostics
 
@@ -92,17 +97,17 @@ Although the representation diagnostics are descriptive rather than primary succ
 
 <figure>
   <img src="/images/pptrain-replication/activation_cka_to_baseline.png" alt="Activation CKA to NLP prepretraining" style="width:80%;">
-  <figcaption><strong>Figure 6.</strong> Midlayer activation CKA to the corresponding NLP-prepretrained model. Higher values indicate more similar hidden-state geometry on held-out downstream tokens. Simpler tasks is closest to the NLP method; NCA is farthest away.</figcaption>
+  <figcaption><strong>Figure 7.</strong> Midlayer activation CKA to the corresponding NLP-prepretrained model. Higher values indicate more similar hidden-state geometry on held-out downstream tokens. Simpler tasks is closest to the NLP method; NCA is farthest away.</figcaption>
 </figure>
 
 <figure>
   <img src="/images/pptrain-replication/logit_divergence_to_baseline.png" alt="Logit divergence to NLP prepretraining" style="width:80%;">
-  <figcaption><strong>Figure 7.</strong> Reference KL divergence from synthetic transfer to the NLP-prepretrained model, shown in scaled units for readability. Lower values indicate closer predictive distributions.</figcaption>
+  <figcaption><strong>Figure 8.</strong> Reference KL divergence from synthetic transfer to the NLP-prepretrained model, shown in scaled units for readability. Lower values indicate closer predictive distributions.</figcaption>
 </figure>
 
 <figure>
   <img src="/images/pptrain-replication/activation_effective_rank.png" alt="Activation effective rank" style="width:100%;">
-  <figcaption><strong>Figure 8.</strong> Effective rank of midpoint hidden states on held-out downstream tokens. Low rank indicates narrow internal activity; NCA is the lowest-rank transferred condition.</figcaption>
+  <figcaption><strong>Figure 9.</strong> Effective rank of midpoint hidden states on held-out downstream tokens. Low rank indicates narrow internal activity; NCA is the lowest-rank transferred condition.</figcaption>
 </figure>
 
 ## Interpretation
@@ -150,10 +155,9 @@ The evaluation also identifies the necessary controls for future prepretraining 
 10. Quentin Lhoest et al. [Datasets: A Community Library for Natural Language Processing](https://arxiv.org/abs/2109.02846). EMNLP Demo 2021.
 11. Alexander Mordvintsev et al. [Growing Neural Cellular Automata](https://distill.pub/2020/growing-ca). Distill 2020.
 12. Guilherme Penedo et al. [The FineWeb Datasets: Decanting the Web for the Finest Text Data at Scale](https://arxiv.org/abs/2406.17557). 2024.
-13. Ryokan Ri and Yoshimasa Tsuruoka. [Pretraining with Artificial Language: Studying Transferable Knowledge in Language Models](https://aclanthology.org/2022.acl-long.504/). ACL 2022.
-14. Pablo Villalobos et al. [Will we run out of data? Limits of LLM scaling based on human-generated data](https://arxiv.org/abs/2211.04325). 2022.
-15. Yuhuai Wu et al. [LIME: Learning Inductive Bias for Primitives of Mathematical Reasoning](https://proceedings.mlr.press/v139/wu21c.html). ICML 2021.
-16. Yuhuai Wu, Felix Li, and Percy Liang. [Insights into Pre-training via Simpler Synthetic Tasks](https://arxiv.org/abs/2206.10139). 2022.
-17. Hugging Face. [HuggingFaceFW/fineweb-edu dataset card](https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu).
-18. Hugging Face. [HuggingFaceTB/finemath dataset card](https://huggingface.co/datasets/HuggingFaceTB/finemath).
-19. Vladimir Blagojevic. [vblagoje/cc_news dataset card](https://huggingface.co/datasets/vblagoje/cc_news).
+13. Pablo Villalobos et al. [Will we run out of data? Limits of LLM scaling based on human-generated data](https://arxiv.org/abs/2211.04325). 2022.
+14. Yuhuai Wu et al. [LIME: Learning Inductive Bias for Primitives of Mathematical Reasoning](https://proceedings.mlr.press/v139/wu21c.html). ICML 2021.
+15. Yuhuai Wu, Felix Li, and Percy Liang. [Insights into Pre-training via Simpler Synthetic Tasks](https://arxiv.org/abs/2206.10139). 2022.
+16. Hugging Face. [HuggingFaceFW/fineweb-edu dataset card](https://huggingface.co/datasets/HuggingFaceFW/fineweb-edu).
+17. Hugging Face. [HuggingFaceTB/finemath dataset card](https://huggingface.co/datasets/HuggingFaceTB/finemath).
+18. Vladimir Blagojevic. [vblagoje/cc_news dataset card](https://huggingface.co/datasets/vblagoje/cc_news).

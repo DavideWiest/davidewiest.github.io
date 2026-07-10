@@ -1,5 +1,5 @@
 ---
-title: "Irregular parameter sharing in Transformers"
+title: "Parameter sharing works best across width"
 date: 2026-06-28
 permalink: /posts/2026/06/irregular-parameter-sharing-transformers/
 tags:
@@ -9,109 +9,162 @@ tags:
   - parameter-sharing
 ---
 
-Exisiting literatuer explores instantiations of parameter sharing in a highly regular way. For example, HRM can be interpreted as sharing parameters across depth/time. It is therefore warranted to ask whether irrelular instantiations work as well. The immediate benefit of irregularity is a less restricted modeling capacity of the network, while fully retaining the upside of reducing memory requirements.
+## Summary
 
-Instead of learning, $L$ separate blocks, we learn a smaller bank of $K$ blocks and choose a schedule
+Parameter sharing is usually introduced as a memory-reduction technique: fewer learned tensors are stored, and the same weights are reused at multiple computational positions. Once an operator is reused, however, memory is no longer the only design variable. The architecture also specifies a sharing topology, namely which positions receive the same operator.
 
-$$
-s=(s_1,\ldots,s_L), \qquad s_l \in \{1,\ldots,K\},
-$$
+This experiment tests that topology question in a 16-layer, width-1024 Transformer language model trained on GPT-2-tokenized OpenWebText. The model hard-ties MLP blocks across a \(16\times16\) grid of layer and width-chunk positions. Every shared variant uses 128 exact MLP blocks for 256 positions, so each block is used exactly twice. This cuts the MLP-bank parameter count from 134.2M to 67.1M while keeping the sharing variants parameter-matched.
 
-so that
+The best topology was cycle width sharing. It reached 4.5043 validation cross-entropy, averaged over three seeds. Maximum-depth-distance sharing reached 4.5279 and beat balanced random sharing, but it did not beat width sharing. The result is an architectural result about where reuse belongs. Preserve depth-specific transformations, and share across width first.
 
-$$
-h_{l+1}=B_{s_l}(h_l).
-$$
+## 1. The topology question
 
-Once sharing is written this way, the architecture has two degrees of freedom. The first is the number of learned blocks $K$. The second is the depth schedule $s$. Therefore, a weight-shared Transformer can be seen as not fully specified by the amount of sharing alone. It is specified by where each reused operator acts.
+The Transformer architecture separates computation into ordered layers, attention modules, and feedforward MLPs ([Vaswani et al. 2017](https://arxiv.org/abs/1706.03762)). Parameter sharing in Transformers has usually been studied as cross-layer reuse. Universal Transformers reuse a transition function recurrently across depth ([Dehghani et al. 2018](https://arxiv.org/abs/1807.03819)). ALBERT reduces memory through cross-layer sharing and embedding factorization ([Lan et al. 2019](https://arxiv.org/abs/1909.11942)). Later work studied which layer-sharing schedules work better, including sequence and cycle assignments across depth ([Takase and Kiyono 2021](https://arxiv.org/abs/2104.06022)).
 
-The baseline schedules here are regular. One-block sharing uses the same operator at every depth. Cyclic sharing uses a small bank periodically, for example
+That line of work leaves a topology question open. Once a model has fewer learned operators than computational positions, which positions should share?
+
+The experiment asks that question directly for Transformer MLPs. A standard Transformer MLP maps the residual stream through a large hidden dimension. Here, that hidden dimension is split into 16 chunks in each of 16 layers. This gives 256 positions,
 
 $$
-[0,1,2,0,1,2,0,1].
+(\ell,c),\qquad \ell\in\{0,\ldots,15\},\quad c\in\{0,\ldots,15\}.
 $$
 
-These schedules are simple, deterministic, and easy to implement. They also impose a strong algebraic constraint on depth: positions separated by the period receive the same update. Irregular sharing keeps the same block bank and the same parameter count, then changes only the schedule. 
+A hard-sharing schedule assigns each position to a learned MLP block,
 
-Let's now ask ourselves, does this schedule itself change language-model validation loss?
+$$
+a(\ell,c)\in\{0,\ldots,K-1\}.
+$$
 
-## Method
+The layer MLP is then the sum of the chunk outputs,
 
-I tested this with decoder-only causal Transformers. For the shared-block comparison, cyclic and irregular models used the same number of learned blocks and the same non-embedding parameter count. They also used matched initialization for the shared blocks. Thus the comparison changes the depth schedule, not the size of the model. For more information, read Appendix A.
-We publish the code [here](https://github.com/Axym-Labs/irregular-parameter-sharing)
+$$
+\mathrm{MLP}_{\ell}(x)
+=
+\sum_{c=0}^{15}
+\phi\!\left(x W^{(1)}_{a(\ell,c)}\right)
+W^{(2)}_{a(\ell,c)}.
+$$
 
-## Token-Level Result
+The shared models use \(K=128\), so the topology decides how 128 exact blocks cover 256 layer-by-width positions.
 
-The fixed schedules were:
+## 2. The tested topologies
 
-| Model | Schedule | Learned blocks | Non-embedding parameters |
-|---|---|---:|---:|
-| One-block sharing | `[0,0,0,0,0,0,0,0,0,0,0,0]` | 1 | 1.772M |
-| Cyclic sharing | `[0,1,2,3,0,1,2,3,0,1,2,3]` | 4 | 7.085M |
-| Hand irregular sharing | `[0,0,1,1,2,0,3,2,1,3,3,0]` | 4 | 7.085M |
-| Unshared Transformer | `[0,1,2,3,4,5,6,7,8,9,10,11]` | 12 | 21.253M |
+The practical baseline is the ordinary unshared dense Transformer MLP. It uses 256 MLP blocks, one for each position. This is the baseline used in practice.
 
-The searched irregular schedule was selected separately for each seed from eight short candidate runs. The measured validation losses were:
+The parameter-matched baseline is balanced random hard sharing. For each final seed, a fresh random balanced schedule assigns 128 blocks to 256 positions, with exactly two uses per block. The reported random result is the mean across those three sampled sharing layouts.
 
-| Seed | Regular CE | Cyclic CE | Hand irregular CE | Searched irregular CE | Unshared CE | Hand gain | Searched gain |
-|---:|---:|---:|---:|---:|---:|---:|---:|
-| 0 | 6.6859 | 6.5857 | 6.5456 | 6.5667 | 6.4664 | 0.0401 | 0.0190 |
-| 1 | 6.6445 | 6.5529 | 6.5192 | 6.5059 | 6.4762 | 0.0337 | 0.0470 |
-| 2 | 6.6985 | 6.5994 | 6.5653 | 6.5162 | 6.4734 | 0.0341 | 0.0832 |
-| Mean | 6.6763 | 6.5793 | 6.5433 | 6.5296 | 6.4720 | 0.0360 | 0.0497 |
-| Sample sd | 0.0283 | 0.0239 | 0.0231 | 0.0325 | 0.0051 | 0.0036 | 0.0322 |
+The regular baselines test structured alternatives to random:
 
-For seed 0, the detailed table is:
+1. Sequence depth sharing ties nearby layer templates across depth.
+2. Cycle depth sharing repeats layer templates periodically across depth.
+3. Sequence width sharing ties nearby MLP chunks within each layer.
+4. Cycle width sharing repeats chunk templates within each layer.
+5. Diagonal depth-width sharing reuses each block once at a far layer and shifted width chunk.
 
-| Model | Schedule | Learned blocks | Non-embedding parameters | Validation CE |
-|---|---|---:|---:|---:|
-| One-block sharing | `[0,0,0,0,0,0,0,0,0,0,0,0]` | 1 | 1.772M | 6.6859 |
-| Cyclic sharing | `[0,1,2,3,0,1,2,3,0,1,2,3]` | 4 | 7.085M | 6.5857 |
-| Hand irregular sharing | `[0,0,1,1,2,0,3,2,1,3,3,0]` | 4 | 7.085M | 6.5456 |
-| Searched irregular sharing | `[3,2,1,3,3,3,3,0,2,0,3,3]` | 4 | 7.085M | 6.5667 |
-| Unshared Transformer | `[0,1,2,3,4,5,6,7,8,9,10,11]` | 12 | 21.253M | 6.4664 |
+Maximum-depth-distance sharing tests the irregular-depth intuition. If a block must be reused across depth, adjacent reuse is the weakest version of the idea because neighboring layers operate in similar stages of the computation. Maximum-distance sharing instead places the two uses of a block as far apart in layer index as possible, then also spreads them across chunk index. This tests whether hard sharing works best when a reused operator bridges distant computational positions.
 
-The equal-parameter comparison is cyclic sharing, hand irregular sharing, and searched irregular sharing. All three use four learned blocks and 7.085M non-embedding parameters. The fixed hand irregular schedule improves validation cross-entropy over cyclic sharing in all three seeds, with mean gain 0.0360. The searched irregular schedule also improves over cyclic sharing in all three seeds, with mean gain 0.0497. Since the shared models have the same non-embedding parameter count and matched shared-block initialization, this improvement is produced by the schedule.
+The final searched baseline is best-of-12 random sharing. It samples 12 balanced random schedules, trains each for 800 proxy steps, selects the best proxy layout, and then retrains that selected layout for the three final seeds. The search budget and selection rule are therefore explicit.
 
-The unshared Transformer has the lowest mean validation loss. It is the practical reference: when the model is allowed to spend 21.253M non-embedding parameters instead of 7.085M, it learns a better language model. The relevant comparison for the sharing mechanism is therefore the fixed-$K$ comparison between cyclic and irregular schedules.
+## 3. Experimental setup
 
-## smaller OpenWebText check
+The experiment used a decoder-only Transformer language model with 16 layers, width 1024, 16 attention heads, sequence length 256, GELU MLPs, and tied output embeddings. The data were 100,000,000 GPT-2-tokenized OpenWebText training tokens with 2,000,000 validation tokens. GPT-2 supplies the tokenizer reference and OpenWebText supplies the web-text training distribution ([Radford et al. 2019](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf), [Gokaslan and Cohen 2019](https://skylion007.github.io/OpenWebTextCorpus/)).
 
-A second token-level run used the same GPT-2 tokenizer and local OpenWebText source at smaller scale: 4.5M training tokens, 0.5M validation tokens, depth 8, width 256, 8 attention heads, and 1200 training steps.
+Each final run trained for 5,000 optimizer steps with batch size 8, gradient accumulation 6, AdamW, learning rate \(3\times10^{-4}\), weight decay 0.1, and evaluation every 500 steps. Every final topology was trained with seeds 0, 1, and 2.
 
-| Model | Schedule | Learned blocks | Non-embedding parameters | Validation CE |
-|---|---|---:|---:|---:|
-| One-block sharing | `[0,0,0,0,0,0,0,0]` | 1 | 0.788M | 7.3475 |
-| Cyclic sharing | `[0,1,2,0,1,2,0,1]` | 3 | 2.363M | 7.2871 |
-| Hand irregular sharing | `[0,0,1,1,2,0,0,2]` | 3 | 2.363M | 7.2723 |
-| Searched irregular sharing | `[0,0,0,2,1,0,1,2]` | 3 | 2.363M | 7.2700 |
-| Unshared Transformer | `[0,1,2,3,4,5,6,7]` | 8 | 6.300M | 7.2011 |
+Language modeling is the testbed because token prediction requires many transformations to coexist in one network. In this setting, a 16-layer width-1024 Transformer is large enough for depth specialization and width redundancy to matter. The result is therefore about the topology of reuse in a deep neural computation, evaluated on a rich NLP problem rather than a toy proxy.
 
-This run has the same structure as the main run. At equal shared-block count, hand irregular sharing improves over cyclic sharing by 0.0148 CE, and searched irregular sharing improves over cyclic sharing by 0.0171 CE.
+The code and artifacts are in [`Axym-Labs/irregular-parameter-sharing`](https://github.com/Axym-Labs/irregular-parameter-sharing).
 
-## Replication on Character Language Modeling
+## 4. Results
 
-The same schedule question was tested on a character-level Transformer language model trained on local Lichess PGN data. This experiment is smaller than OpenWebText and gives a seed-level check because it holds the same schedule comparison fixed.
+Lower validation CE is better. Error bars and standard deviations are across the three final seeds.
 
-| Seed | Cyclic CE | Hand irregular CE | Searched irregular CE | Unshared CE |
-|---:|---:|---:|---:|---:|
-| 0 | 0.6211 | 0.6200 | 0.6047 | not run |
-| 1 | 0.6283 | 0.6257 | 0.6064 | not run |
-| 2 | 0.5788 | 0.5813 | 0.5666 | 0.5612 |
+<figure>
+  <img src="/images/parameter-sharing-topology/validation_ce_by_topology.png" alt="Validation cross-entropy by hard-sharing topology" style="width:100%;">
+  <figcaption><strong>Figure 1.</strong> Validation cross-entropy by topology. Cycle width sharing has the lowest mean validation loss among the tested topologies.</figcaption>
+</figure>
 
-The searched irregular schedule beats cyclic sharing in all three seeds. The hand schedule beats cyclic sharing in two seeds and loses in one seed. Once $s$ is an architectural object, choosing $s$ is part of model design.
+<p><strong>Table 1.</strong> Final validation losses. All shared variants use 128 hard-shared MLP blocks and 67.1M MLP-bank parameters. The unshared model is the practical dense baseline.</p>
 
-## Interpretation
+| Variant | Sharing topology | MLP blocks | MLP-bank params | Validation CE | Delta vs random |
+| --- | --- | ---: | ---: | ---: | ---: |
+| Unshared dense MLP | none | 256 | 134.2M | 4.5928 +/- 0.0384 | +0.0284 |
+| Sequence depth | depth | 128 | 67.1M | 4.5723 +/- 0.0781 | +0.0078 |
+| Cycle depth | depth | 128 | 67.1M | 4.5322 +/- 0.0733 | -0.0322 |
+| Sequence width | width | 128 | 67.1M | 4.5621 +/- 0.0366 | -0.0023 |
+| Cycle width | width | 128 | 67.1M | **4.5043 +/- 0.0537** | **-0.0601** |
+| Diagonal depth-width | depth and width | 128 | 67.1M | 4.5504 +/- 0.0086 | -0.0140 |
+| Balanced random | depth and width | 128 | 67.1M | 4.5645 +/- 0.0601 | 0.0000 |
+| Maximum depth distance | depth and width | 128 | 67.1M | 4.5279 +/- 0.0243 | -0.0366 |
+| Best-of-12 random | depth and width | 128 | 67.1M | 4.6057 +/- 0.0523 | +0.0413 |
 
-A cyclic schedule assumes that depth is periodic. This assumption is convenient because it converts depth into repeated applications of a small operator bank. It also makes the first, fourth, and seventh transformations share weights in an eight-layer three-block model. Nothing in the residual stream requires this periodic equivalence.
+The result in Table 1 is that topology changes loss at fixed parameter count. Cycle width sharing beats balanced random by 0.0601 CE and beats the unshared dense baseline by 0.0885 CE in this training budget. Maximum-distance sharing also beats balanced random by 0.0366 CE, which supports the maximum-distance hypothesis as a useful constraint. It is not the best tested topology.
 
-An irregular schedule removes that equivalence while keeping the same learned blocks. In the hand schedule above, block 0 appears twice at the start, block 3 enters only after six transformations, and the final positions reuse blocks 1, 3, 3, and 0. In this view, a shared Transformer resembles an unrolled dynamical system with a small set of operators and a discrete control sequence. The number of operators controls parameter count. The control sequence controls how those operators are composed.
+<figure>
+  <img src="/images/parameter-sharing-topology/delta_vs_random.png" alt="Validation cross-entropy deltas relative to balanced random hard sharing" style="width:90%;">
+  <figcaption><strong>Figure 2.</strong> Parameter-matched sharing topologies relative to balanced random hard sharing. Negative values improve over random.</figcaption>
+</figure>
 
-This matters for large models, such as modern language models because non-embedding Transformer blocks are the expensive part that grows with depth and width. At LLM scale, sharing a block bank is a direct parameter-compression axis. A regular schedule spends that axis in the most constrained way. Conversely, an irregular schedule keeps the compression and gives the depth computation more compositions.
+The searched random result is informative because it failed in the final comparison. The best proxy layout among 12 random candidates had 5.6940 proxy validation CE after 800 steps, but the final three-seed mean was 4.6057. The search procedure did not discover a topology that beat the regular width-sharing rule.
 
-The experiment establishes the concrete schedule effect: with the same learned blocks, the non-periodic schedules achieve lower validation loss than the cyclic schedule. The unshared model remains the practical reference point for maximum quality at this width and depth. Accordingly, schedule learning belongs inside the parameter-sharing problem: choose the block bank, choose the depth schedule, and then scale the comparison to larger shared-block banks, deeper Transformers, and longer training.
+## 5. What cycle width sharing is
 
-## Appendix A: Experimental Setup
+Cycle width sharing keeps each layer's MLP block bank separate. With 16 layers and 128 shared blocks, each layer receives 8 learned blocks. The schedule is
 
-Each model used learned token embeddings, learned positional embeddings, pre-norm self-attention blocks, GELU MLPs, tied output embeddings, AdamW, sequence length 256, and the GPT-2 tokenizer for the token-level experiment. The practical reference model was the ordinary unshared Transformer with the same depth and width. The simple same-parameter baseline was cyclic sharing, since it uses the same number of shared blocks as the irregular models.
-The main token-level experiment used local OpenWebText shards, 19M training tokens, 1M validation tokens, depth 12, width 384, 6 attention heads, batch size 32, and 3000 training steps. I ran it with seeds 0, 1, and 2. I also ran a short random schedule search for each seed: each candidate schedule trained for 600 steps, the best candidate schedule was selected, and then that schedule was retrained from scratch for the full 3000-step comparison.
+$$
+a_{\mathrm{width\ cycle}}(\ell,c)=8\ell+(c\bmod 8).
+$$
+
+Thus, within a layer, chunks 0 and 8 share a block, chunks 1 and 9 share a block, and so on. No block is shared across two different layers.
+
+This comparison matters because the parameter count is identical to the depth-sharing and random-sharing variants. Cycle width sharing is not larger. It chooses a different reuse topology.
+
+<figure>
+  <img src="/images/parameter-sharing-topology/sharing_topology_schedules.png" alt="Four hard-sharing schedules over layer and MLP chunk positions" style="width:100%;">
+  <figcaption><strong>Figure 3.</strong> Four representative 128-block schedules over the 16-layer by 16-chunk grid. Color identifies block identity modulo the plotting palette; the exact identities are less important than the reuse axis.</figcaption>
+</figure>
+
+The cycle-vs-sequence distinction should be interpreted cautiously. MLP chunk order is an implementation convention. Sequence width and cycle width are both width-axis sharing rules, and they differ less conceptually than width sharing differs from depth sharing. The stable conclusion concerns the axis. Sharing across width works better than sharing across depth.
+
+## 6. Interpretation
+
+Depth and width are not equivalent axes. Depth is an ordered computation. A lower layer and an upper layer see different residual-stream distributions, serve different roles, and operate at different stages of abstraction. Tying a block across depth forces one operator to act in multiple computational regimes.
+
+Width inside the MLP is more exchangeable. A feedforward layer expands the residual stream into many hidden channels, applies a nonlinearity, and projects back. The hidden chunks are parallel contributors to the same layer update. Sharing there removes degrees of freedom, but it preserves the layer-specific transformation.
+
+This interpretation explains the ordering. Sequence depth sharing performs poorly because adjacent layers are tied. Cycle depth sharing improves when tied uses are separated by 8 layers. Maximum-distance sharing improves further over random because it explicitly pushes tied uses apart. Cycle width sharing has the lowest loss because it avoids cross-depth tying altogether.
+
+This revises the original interpretation of the experiment. The best hand-designed irregular-style topology, maximum depth distance, is strong. The winning rule is simpler. Keep depth distinct, share width.
+
+## 7. Relation to CNNs and structured matrices
+
+The same axis principle appears in convolutional networks. CNNs share a kernel across spatial positions because the same local feature can appear at different image locations ([LeCun et al. 1998](https://vision.stanford.edu/cs598_spring07/papers/Lecun98.pdf)). Depthwise separable convolutions and MobileNets further separate spatial and channel mixing, showing that the axis of reuse is a core architectural decision rather than a bookkeeping detail ([Howard et al. 2017](https://arxiv.org/abs/1704.04861)).
+
+The same principle appears in structured matrices. ACDC, Fastfood-style layers, tensor-train layers, butterfly matrices, Butterfly Transform, Monarch matrices, and Monarch Mixer all replace dense width mixing with structured reuse patterns ([Sindhwani et al. 2015](https://arxiv.org/abs/1511.05946), [Yang et al. 2014](https://arxiv.org/abs/1412.7149), [Novikov et al. 2015](https://arxiv.org/abs/1509.06569), [Dao et al. 2019](https://arxiv.org/abs/1903.05895), [Alizadeh-Vahid et al. 2019](https://arxiv.org/abs/1906.02256), [Dao et al. 2022](https://arxiv.org/abs/2204.00595), [Fu et al. 2023](https://arxiv.org/abs/2310.12109)). Recent structured-matrix work also finds that different structured replacements need different optimization settings, which reinforces that the structure is an architectural choice, not a neutral parameter-count reduction ([Qiu et al. 2024](https://proceedings.mlr.press/v235/qiu24f.html)).
+
+The experiment here adds a direct Transformer result to that picture. When hard sharing is forced, width-axis reuse is the most reliable topology among the tested alternatives. CNNs share across image width and height because those axes repeat local roles. Structured matrices share across width because width mixing contains reusable algebraic structure. Transformer MLPs show the same pattern: share along the redundant axis before sharing along the ordered computational axis.
+
+## Conclusion
+
+At a fixed hard-sharing budget, parameter-sharing topology decides model quality. In this 16-layer, width-1024 Transformer LM, cycle width sharing was the best tested topology, maximum-depth-distance sharing was a strong but secondary result, and random layout search did not beat the regular width rule.
+
+The resulting design rule is simple: if a Transformer MLP must reuse exact blocks, preserve depth first. Different layers serve different purposes, while width chunks inside a layer tolerate reuse. That is the transferable topological result.
+
+## References
+
+1. Reza Alizadeh-Vahid et al. [Butterfly Transform: An Efficient FFT Based Neural Architecture Design](https://arxiv.org/abs/1906.02256). CVPR 2020.
+2. Tri Dao et al. [Learning Fast Algorithms for Linear Transforms Using Butterfly Factorizations](https://arxiv.org/abs/1903.05895). ICML 2019.
+3. Tri Dao et al. [Monarch: Expressive Structured Matrices for Efficient and Accurate Training](https://arxiv.org/abs/2204.00595). ICML 2022.
+4. Mostafa Dehghani et al. [Universal Transformers](https://arxiv.org/abs/1807.03819). ICLR 2019.
+5. Daniel Y. Fu et al. [Monarch Mixer: A Simple Sub-Quadratic GEMM-Based Architecture](https://arxiv.org/abs/2310.12109). NeurIPS 2023.
+6. Aaron Gokaslan and Vanya Cohen. [OpenWebText Corpus](https://skylion007.github.io/OpenWebTextCorpus/). 2019.
+7. Andrew G. Howard et al. [MobileNets: Efficient Convolutional Neural Networks for Mobile Vision Applications](https://arxiv.org/abs/1704.04861). 2017.
+8. Zhenzhong Lan et al. [ALBERT: A Lite BERT for Self-supervised Learning of Language Representations](https://arxiv.org/abs/1909.11942). ICLR 2020.
+9. Yann LeCun et al. [Gradient-Based Learning Applied to Document Recognition](https://vision.stanford.edu/cs598_spring07/papers/Lecun98.pdf). Proceedings of the IEEE 1998.
+10. Alexander Novikov et al. [Tensorizing Neural Networks](https://arxiv.org/abs/1509.06569). NeurIPS 2015.
+11. Alec Radford et al. [Language Models are Unsupervised Multitask Learners](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf). OpenAI 2019.
+12. Siddharth Sindhwani et al. [ACDC: A Structured Efficient Linear Layer](https://arxiv.org/abs/1511.05946). 2015.
+13. Sho Takase and Shun Kiyono. [Lessons on Parameter Sharing across Layers in Transformers](https://arxiv.org/abs/2104.06022). 2021.
+14. Ashish Vaswani et al. [Attention Is All You Need](https://arxiv.org/abs/1706.03762). NeurIPS 2017.
+15. Yinchong Yang et al. [Deep Fried Convnets](https://arxiv.org/abs/1412.7149). ICCV 2015.
+16. Yifan Qiu et al. [Compute Better Spent: Replacing Dense Layers with Structured Matrices](https://proceedings.mlr.press/v235/qiu24f.html). ICML 2024.
