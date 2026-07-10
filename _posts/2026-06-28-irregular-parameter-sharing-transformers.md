@@ -9,13 +9,9 @@ tags:
   - parameter-sharing
 ---
 
-## Summary
+## Abstract
 
-Parameter sharing has two common roles in neural architecture design. It is an architectural prior, because it forces multiple computational positions to use the same transformation, and it is a compression mechanism, because it reduces model size and inference-time memory requirements. Existing work leaves open the more specific question of which sharing topology is most beneficial. Once weights are reused, which positions in the network should receive the same operator?
-
-This experiment tests that topology question in a 16-layer, width-1024 Transformer language model trained on GPT-2-tokenized OpenWebText. The model hard-ties MLP blocks across a \(16\times16\) grid of layer and width-chunk positions. Every shared variant uses 128 exact MLP blocks for 256 positions, so each block is used exactly twice. This cuts the MLP-bank parameter count from 134.2M to 67.1M while keeping the sharing variants parameter-matched.
-
-The best topology was cycle width sharing. It reached 4.5043 validation cross-entropy, averaged over three seeds. Maximum-depth-distance sharing reached 4.5279 and beat balanced random sharing, but it did not beat width sharing. The result is an architectural result about where reuse belongs. Preserve depth-specific transformations, and share across width first.
+Parameter sharing can reduce model size and inference-time memory while imposing an architectural prior over repeated transformations. For Transformer MLPs, prior work establishes that weights can be reused across layers, but it does not determine which sharing topology is most beneficial under a fixed sharing budget. This study evaluates hard MLP-block sharing on a 16-layer, width-1024 Transformer language model trained on GPT-2-tokenized OpenWebText. The comparison keeps all shared variants parameter-matched: 128 exact MLP blocks are assigned to 256 layer-by-width positions, so each shared block is used exactly twice. Cycle width sharing achieves the lowest validation cross-entropy, 4.5043 averaged over three seeds, compared with 4.5645 for balanced random sharing and 4.5279 for maximum-depth-distance sharing. The result supports a topological design principle for hard sharing in Transformer MLPs: preserve layer-specific transformations and allocate reuse across width, where MLP chunks are more interchangeable.
 
 ## 1. The topology question
 
