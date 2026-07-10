@@ -54,6 +54,8 @@ $$
 
 This is the marginal vector field. If different endpoint pairs pass through the same \(x_t\), ordinary FM averages their target vectors.
 
+## 2. Delay FM's objective
+
 DFM changes the conditioning information. It trains a vector field of the form
 
 $$
@@ -62,7 +64,48 @@ $$
 
 where \(x_{t-\tau}\) is an earlier point on the same constructed training trajectory. This earlier point changes the statistical meaning of the objective.
 
-## 2. Endpoint recovery from two trajectory points
+Accordingly, DFM minimizes
+
+$$
+\mathcal{L}_{\mathrm{DFM}}(\theta)
+=
+\mathbb{E}
+\left[
+\left\|v_\theta(t,x_t,x_{t-\tau})-u_t\right\|^2
+\right].
+$$
+
+Its gradient is
+
+$$
+\nabla_\theta \mathcal{L}_{\mathrm{DFM}}
+=
+2\mathbb{E}
+\left[
+(v_\theta(t,x_t,x_{t-\tau})-u_t)^\top
+\nabla_\theta v_\theta(t,x_t,x_{t-\tau})
+\right].
+$$
+
+The corresponding population minimizer is
+
+$$
+v^*_{\mathrm{DFM}}(t,x,y)
+=
+\mathbb{E}[u_t\mid x_t=x,\ x_{t-\tau}=y].
+$$
+
+Compare this with ordinary FM,
+
+$$
+v^*_{\mathrm{FM}}(t,x)=\mathbb{E}[u_t\mid x_t=x].
+$$
+
+The difference is the conditioning event. Ordinary FM averages over all endpoint pairs compatible with \(x_t=x\). DFM conditions on both \(x_t=x\) and \(x_{t-\tau}=y\). In the deterministic two-endpoint setting, this finer conditioning often fixes the endpoint pair. The objective is then fitting the target vector associated with the sampled coupling.
+
+This is why source-conditioned FM and Augmented Bridge Matching are the closest conceptual relatives. When the model receives the source endpoint, the objective no longer induces learning of an unconditional marginal field. Both cases preserve information about the source-target coupling that ordinary FM marginalizes away.
+
+## 3. Endpoint recovery from two trajectory points
 
 Set \(s=t-\tau\). The current point and the earlier point satisfy
 
@@ -109,54 +152,11 @@ u_t(x,y)
 \qquad y=x_s.
 $$
 
-For the straight scheduler, this expression becomes a scalar multiple of \(x_t-x_{t-\tau}\). For cosine or VP-style schedules, it is still a simple linear expression in \(x_t\) and \(x_{t-\tau}\), but not the same chord formula. The endpoint-recovery claim is the general point.
-
-## 3. Delay FM's objective
-
-DFM minimizes
-
-$$
-\mathcal{L}_{\mathrm{DFM}}(\theta)
-=
-\mathbb{E}
-\left[
-\left\|v_\theta(t,x_t,x_{t-\tau})-u_t\right\|^2
-\right].
-$$
-
-Its gradient is
-
-$$
-\nabla_\theta \mathcal{L}_{\mathrm{DFM}}
-=
-2\mathbb{E}
-\left[
-(v_\theta(t,x_t,x_{t-\tau})-u_t)^\top
-\nabla_\theta v_\theta(t,x_t,x_{t-\tau})
-\right].
-$$
-
-The corresponding population minimizer is
-
-$$
-v^*_{\mathrm{DFM}}(t,x,y)
-=
-\mathbb{E}[u_t\mid x_t=x,\ x_{t-\tau}=y].
-$$
-
-Compare this with ordinary FM,
-
-$$
-v^*_{\mathrm{FM}}(t,x)=\mathbb{E}[u_t\mid x_t=x].
-$$
-
-The difference is the conditioning event. Ordinary FM averages over all endpoint pairs compatible with \(x_t=x\). DFM conditions on both \(x_t=x\) and \(x_{t-\tau}=y\). In the deterministic two-endpoint setting, this finer conditioning often fixes the endpoint pair. The objective is then fitting the target vector associated with the sampled coupling.
-
-This is why source-conditioned FM and Augmented Bridge Matching are the closest conceptual relatives. When the model receives the source endpoint, the objective no longer asks for the unconditional marginal field. When the model receives enough information to recover both endpoints, the conditioning is even sharper. Both cases preserve information about the source-target coupling that ordinary FM marginalizes away.
+For a stright (linear-in-time) schedule, this expression becomes a scalar multiple of \(x_t-x_{t-\tau}\). For cosine or VP-style schedules, it is still a simple linear expression in \(x_t\) and \(x_{t-\tau}\), but not the same chord formula. The endpoint-recovery claim is the general point.
 
 ## 4. Endpoint recovery after one model evaluation
 
-The same endpoint logic has a sampling consequence. Suppose the target vector is determined by the endpoint pair. After an informative fitted model evaluation, the implied endpoint can often be recovered without running the neural network again.
+The same endpoint logic can be applied to sample (much) more efficiently from fitted models trained with the DFM objective. After an informative fitted model evaluation, the trajectory is implicitly determined, hence the implied endpoint can be recovered without running the neural network again.
 
 For the linear-in-endpoints schedule, let the first informative model output be
 
