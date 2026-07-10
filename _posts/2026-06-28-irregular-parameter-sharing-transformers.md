@@ -11,7 +11,7 @@ tags:
 
 ## Summary
 
-Parameter sharing is usually introduced as a memory-reduction technique: fewer learned tensors are stored, and the same weights are reused at multiple computational positions. Once an operator is reused, however, memory is no longer the only design variable. The architecture also specifies a sharing topology, namely which positions receive the same operator.
+Parameter sharing is often introduced as a memory-reduction technique: fewer learned tensors are stored, and the same weights are reused at multiple computational positions. Once an operator is reused, however, parameter count is no longer the only design variable. The architecture also specifies a sharing topology, namely which positions in the network receive the same operator.
 
 This experiment tests that topology question in a 16-layer, width-1024 Transformer language model trained on GPT-2-tokenized OpenWebText. The model hard-ties MLP blocks across a \(16\times16\) grid of layer and width-chunk positions. Every shared variant uses 128 exact MLP blocks for 256 positions, so each block is used exactly twice. This cuts the MLP-bank parameter count from 134.2M to 67.1M while keeping the sharing variants parameter-matched.
 
