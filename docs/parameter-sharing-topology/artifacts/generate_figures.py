@@ -12,12 +12,13 @@ import numpy as np
 
 
 ROOT = Path("/home/davwis/main")
+WEBSITE_DIR = Path(__file__).resolve().parents[3]
 RESULT_PATH = (
     ROOT
     / "workspace/irregular-parameter-sharing/docs/hard-block-sharing/artifacts/combined_result.json"
 )
-IMAGE_DIR = ROOT / "harness/workspace/website/images/parameter-sharing-topology"
-DOC_IMAGE_DIR = ROOT / "harness/workspace/website/docs/parameter-sharing-topology/artifacts/figures"
+IMAGE_DIR = WEBSITE_DIR / "images/parameter-sharing-topology"
+DOC_IMAGE_DIR = WEBSITE_DIR / "docs/parameter-sharing-topology/artifacts/figures"
 
 
 LABELS = {

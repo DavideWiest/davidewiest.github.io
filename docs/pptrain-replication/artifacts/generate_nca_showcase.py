@@ -11,12 +11,13 @@ import numpy as np
 
 
 ROOT = Path("/home/davwis/main")
+WEBSITE_DIR = Path(__file__).resolve().parents[3]
 RESULTS = (
     ROOT
     / "workspace/pptrain/internal/runs/paper_proxy_pythia410m_12k_20260703_1552/replication_results.json"
 )
-OUT_DIR = ROOT / "harness/workspace/website/images/pptrain-replication"
-ARTIFACT_DIR = ROOT / "harness/workspace/website/docs/pptrain-replication/artifacts/figures"
+OUT_DIR = WEBSITE_DIR / "images/pptrain-replication"
+ARTIFACT_DIR = WEBSITE_DIR / "docs/pptrain-replication/artifacts/figures"
 
 
 def mean_std(metric: dict) -> tuple[float, float, list[float]]:
