@@ -34,7 +34,7 @@ def save(fig: plt.Figure) -> None:
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
     for directory in (OUT_DIR, ARTIFACT_DIR):
-        fig.savefig(directory / "nca_showcase.png", dpi=220, bbox_inches="tight")
+        fig.savefig(directory / "nca_showcase.png", dpi=220, bbox_inches="tight", transparent=True)
 
 
 def main() -> None:
@@ -58,8 +58,8 @@ def main() -> None:
             "axes.labelsize": 9,
             "xtick.labelsize": 8,
             "ytick.labelsize": 8,
-            "figure.facecolor": "white",
-            "axes.facecolor": "white",
+            "figure.facecolor": "none",
+            "axes.facecolor": "none",
         }
     )
 

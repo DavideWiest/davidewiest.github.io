@@ -38,3 +38,16 @@ author: codex
   colon-pivot lines.
 - Retried the Jekyll build check. It still cannot run because `bundle` is
   missing in this shell.
+- Applied the final structural pass after user edits: preserved the new section
+  order, removed the confusing chord wording, reduced endpoint recovery to the
+  two useful displayed formulas, added a dedicated gradient section with
+  straight and cosine/VP substitutions, moved the source-conditioned
+  FM/Augmented Bridge Matching interpretation there, and shortened the sampling
+  section to an endpoint readout from the time-0 prediction to the time-1
+  endpoint.
+- Applied a second pass to the newly added sections: replaced imprecise
+  "model is asked" wording with objective/gradient language, introduced the
+  schedule-determined continuation target \(F_t(x_t,x_{t-\tau})\), clarified
+  DFM as a close relative of source-conditioned FM and Augmented Bridge
+  Matching, added inline citations at the relevant claims, expanded the
+  reference list to 15 sources, and updated the sentence-audit artifact.

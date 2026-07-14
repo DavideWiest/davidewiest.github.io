@@ -1,137 +1,102 @@
 ---
-title: "Sentence audit for delay FM rewrite"
+title: "Sentence audit for final revised sections"
 date: 2026-07-10
 author: codex
 status: temporary-writing-workflow
 ---
 
-# Sentence audit for final rewrite
+# Sentence audit for final revised sections
 
-This audit records the purpose of each accepted prose sentence in the final
-post. Equations are checked in the derivation artifact.
+This audit covers the second pass on the newly revised sections. Earlier
+sections were left intact except for citation consistency.
 
-## Abstract
+## 4. Gradients and trajectory continuation
 
-1. "Delay Flow Matching..." defines DFM by its conditioning variables rather
-   than by the unexplained phrase "delayed state."
-2. "Ordinary flow matching..." states the comparator before the modification.
-3. "DFM trains..." introduces \(x_{t-\tau}\) as an earlier point on the same
-   constructed trajectory.
-4. "In a genuine..." separates the DDE reading from the ordinary FM setting.
-5. "In ordinary..." defines the setting analyzed in the post.
-6. "For common..." states the endpoint-identification claim.
-7. "The DFM objective..." states the consequence for the objective.
-8. "It learns..." contrasts selected-coupling target vectors with the marginal
-   vector field.
-9. "This note gives..." previews the proof obligations.
+- "Flow-matching models are trained..." gives the high-level training procedure
+  before any gradient formula.
+- "This simulation-free regression view..." anchors the training description in
+  FM, CFM, and stochastic interpolants with citations.
+- "For DFM, the per-sample gradient..." introduces the mathematical object for a
+  single sampled training tuple.
+- "For the straight schedule..." names the schedule class and cites the
+  straight-path / OT-style literature.
+- "When \(t>\tau\)..." states the delayed displacement identity before
+  substituting it into the gradient.
+- "In the initial-history window..." handles \(0<t<\tau\) without expanding the
+  section into a second derivation.
+- "For a cosine or VP-style schedule..." cites diffusion and score-SDE sources
+  before introducing \(\alpha_r=\cos\phi_r\), \(\beta_r=\sin\phi_r\).
+- "With \(s=t-\tau\)..." gives the scheduler-specific target produced by the
+  endpoint-recovery formula.
+- "Both substitutions have the same structure." introduces the interpretation
+  without anthropomorphic "the model is asked" phrasing.
+- "Conditional on..." defines the schedule-determined continuation target
+  \(F_t(x_t,x_{t-\tau})\).
+- "The parameter update..." states the objective-level distinction from the
+  marginal conditional mean.
+- "At the beginning..." links the gradient argument to sampling.
+- "In ordinary distribution transport..." states why the endpoint coupling is
+  the learned choice.
+- "This is why DFM..." introduces source-conditioned FM and ABM as relatives,
+  not as unexplained labels.
+- "Here source-conditioned FM..." defines the term.
+- "Augmented Bridge Matching..." cites the coupling-preservation claim.
+- "DFM has a similar effect..." states the mechanism.
+- "In this setting..." separates the schedule-supplied formula from the learned
+  coupling.
+- "The next two sections..." gives the reader the transition to consequences.
 
-## Introduction
+## 5. Sampling efficiently from DFM models
 
-10. "The standard..." gives the reader the setup before notation.
-11. "We draw..." explains how endpoint pairs enter training.
-12. "In this note..." defines "endpoint pair" explicitly.
-13. "The first endpoint..." defines \(x_0\).
-14. "The second endpoint..." defines \(x_1\).
-15. "The coupling..." defines the article's central object.
-16. "The claim is narrow." prevents overreading.
-17. "In the ordinary..." states the scoped claim.
-18. "Once this happens..." states why the coupling becomes central.
+- "The endpoint-recovery formula..." references the previous derivation instead
+  of repeating it.
+- "For sampling..." sets \(t=0\) and identifies the target endpoint as the
+  time-\(1\) endpoint \(x_1\).
+- "In practice..." introduces the linear-in-endpoints scheduler condition.
+- "\(\widehat{u}_0=v_\theta(0,x_0,x_0)\)" states the first informative
+  prediction.
+- "The target equation..." gives the only needed algebraic relation.
+- "If \(\dot{\beta}_0\neq0\)..." states the endpoint readout condition.
+- "For the straight scheduler..." derives \(\widehat{x}_1=x_0+\widehat{u}_0\).
+- "For the cosine..." derives \(\widehat{x}_1=\widehat{u}_0/\dot{\phi}_0\).
+- "After this readout..." states why later target vectors are analytic.
+- "Additional network calls..." scopes the claim to fitted endpoint-determined
+  behavior.
+- "This endpoint readout..." distinguishes the argument from distillation and
+  flow-map matching.
 
-## Flow matching setup
+## 6. Coupling choice
 
-19. "Ordinary flow matching..." motivates the path equation.
-20. "The vector-field..." defines the target \(u_t\).
-21. "FM trains..." introduces the objective.
-22. "The population..." gives the squared-loss minimizer.
-23. "This is..." names the marginal vector field only after the formula.
-24. "If different..." explains the conditional mean behavior.
-25. "DFM changes..." introduces the modification.
-26. "It trains..." gives the DFM input form.
-27. "Here..." defines \(x_{t-\tau}\) again locally.
-28. "This earlier point..." states why the modification matters.
+- "The practical implication..." states the section claim directly.
+- "If the endpoint pairs..." avoids anthropomorphic phrasing and says the DFM
+  objective ties the model to product-coupled pairs.
+- "Such a model..." avoids claiming product-coupled DFM cannot sample well.
+- "The extra input..." distinguishes DFM from an improved marginal FM objective.
+- "DFM is most natural..." gives the recommendation.
+- "The pairing might..." cites OT, minibatch coupling, bridge matching, and ABM.
+- "In those cases..." states why the extra input is useful.
 
-## Endpoint recovery
+## 7. Delayed dynamical systems
 
-29. "Set \(s=t-\tau\)." fixes notation.
-30. "The current..." introduces the matrix equation.
-31. "This equation..." explains coordinatewise inversion.
-32. "When..." states the determinant condition.
-33. "the endpoint..." introduces the recovered endpoints.
-34. "The model..." states the main algebraic consequence.
-35. "The calculation..." prevents the straight-path underclaim.
-36. "It only..." states the actual assumptions.
-37. "The target..." explains why endpoint recovery affects the objective.
-38. "Substituting..." introduces the target formula.
-39. "For the straight..." marks the straight case as only a special case.
-40. "For cosine..." marks nonlinear schedules as covered by the general claim.
-41. "The endpoint-recovery..." restates the general point.
+- "The analysis above..." states the scope boundary.
+- "In a DDE..." gives the governing form.
+- "the earlier state..." explains why the DDE setting differs from endpoint
+  interpolation.
+- "This is the setting..." cites NODE, NDDE, trajectory FM, and DFM.
+- "Snapshot-to-snapshot..." gives the valid application class.
+- "DFM can..." states the positive but bounded claim.
+- "The remaining modeling question..." keeps constructed paths separate from
+  true dynamics.
+- "If those paths..." states what DFM learns under OT/KPG-OT/spline/geodesic
+  construction.
 
-## Delay FM's objective
+## Checks Applied
 
-42. "DFM minimizes..." introduces the DFM objective.
-43. "Its gradient..." gives the gradient object.
-44. "The corresponding..." gives the population minimizer.
-45. "Compare..." places the FM minimizer beside it.
-46. "The difference..." identifies the conditioning change.
-47. "Ordinary FM..." explains the averaging object.
-48. "DFM conditions..." explains the finer conditioning object.
-49. "In the deterministic..." connects endpoint recovery to the objective.
-50. "The objective..." states that the sampled coupling is what is preserved.
-51. "This is why..." connects to source-conditioned FM and ABM.
-52. "When the model..." states the source-conditioned version precisely.
-53. "When the model..." states the endpoint-recovered version precisely.
-54. "Both cases..." gives the conceptual comparison without overclaiming.
-
-## Endpoint after one model evaluation
-
-55. "The same endpoint..." motivates the sampling consequence.
-56. "Suppose..." states the endpoint-determined condition.
-57. "After..." states the one-evaluation consequence with the fitted-model
-   condition.
-58. "For the..." introduces the concrete readout.
-59. "The current..." introduces the state-target system.
-60. "If..." states the readout determinant condition.
-61. "then..." gives the endpoint readout.
-62. "For common..." states the \(t=0\) simplification.
-63. "Then..." gives the simplified formula.
-64. "The straight..." gives the familiar special case.
-65. "This is..." explicitly rejects the straight-path-only reading.
-66. "The sufficient..." states the general condition.
-67. "Once..." states why later target vectors are analytic.
-68. "For the..." gives the linear-in-endpoints formula.
-69. "Further..." scopes finite-capacity and numerical exceptions.
-70. "They do..." states the endpoint-information claim.
-
-## Coupling choice
-
-71. "The practical..." states the implication.
-72. "If the..." describes product coupling.
-73. "Such a..." avoids claiming that product-coupled DFM cannot work.
-74. "The extra..." states the interpretation.
-75. "DFM is..." gives the recommendation.
-76. "The pairing..." gives examples.
-77. "In those..." states why the extra input helps.
-
-## Delayed dynamical systems
-
-78. "The analysis..." sets the boundary.
-79. "In a DDE..." introduces the true DDE equation.
-80. "the earlier..." explains the role of \(x(t-\tau)\).
-81. "It is..." distinguishes this from endpoint coding.
-82. "The path..." states why endpoint-interpolation analysis does not apply.
-83. "Snapshot-to-snapshot..." names the valid separate setting.
-84. "DFM can..." states the positive scoped use case.
-85. "The remaining..." states the modeling caveat.
-86. "If those..." explains what DFM learns under constructed paths.
-
-## Final style checks
-
-- Removed the heading "What the loss is fitting."
-- Replaced it with "Delay FM's objective."
-- Removed "Where the argument stops."
-- Removed "curve-extension loss" and the standalone "This is the
-  curve-extension argument."
-- Replaced the straight-path endpoint statement with the scheduler-general
-  endpoint-readout condition.
-- Avoided body prose sentences that use a colon as the main pivot.
+- Replaced "These examples show..." with a more precise statement about the
+  DFM gradient residual and a schedule-determined continuation target.
+- Replaced "DFM does not ask..." with objective-level wording.
+- Replaced "closest conceptual relatives" with "DFM is best interpreted as a
+  close relative of..." and introduced source-conditioned FM before using it.
+- Added citations at the claims they support.
+- Removed "chord" and retained "trajectory" / "continuation" language.
 

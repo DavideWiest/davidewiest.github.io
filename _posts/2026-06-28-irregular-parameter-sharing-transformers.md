@@ -9,6 +9,24 @@ tags:
   - parameter-sharing
 ---
 
+<style>
+  .parameter-sharing-plot-matte {
+    box-sizing: border-box;
+    margin: 0 auto 1em;
+    padding: 12px;
+    border: 1px solid rgba(61, 48, 34, 0.14);
+    border-radius: 6px;
+    background: #f7f1ea;
+  }
+
+  .parameter-sharing-plot-matte img {
+    display: block;
+    width: 100%;
+    margin-bottom: 0;
+    mix-blend-mode: multiply;
+  }
+</style>
+
 ## Abstract
 
 Parameter sharing can reduce model size and inference-time memory while imposing an architectural prior over repeated transformations. For Transformer MLPs, prior work establishes that weights can be reused across layers, but it does not determine which sharing topology is most beneficial under a fixed sharing budget. This study evaluates hard MLP-block sharing on a 16-layer, width-1024 Transformer language model trained on GPT-2-tokenized OpenWebText. The comparison keeps all shared variants parameter-matched: 128 exact MLP blocks are assigned to 256 layer-by-width positions, so each shared block is used exactly twice. Cycle width sharing achieves the lowest validation cross-entropy, 4.5043 averaged over three seeds, compared with 4.5645 for balanced random sharing and 4.5279 for maximum-depth-distance sharing. The result supports a topological design principle for hard sharing in Transformer MLPs: preserve layer-specific transformations and allocate reuse across width, where MLP chunks are more interchangeable.
@@ -76,7 +94,9 @@ The code and artifacts are in [`Axym-Labs/irregular-parameter-sharing`](https://
 Lower validation CE is better. Error bars and standard deviations are across the three final seeds.
 
 <figure>
-  <img src="/images/parameter-sharing-topology/validation_ce_by_topology.png" alt="Validation cross-entropy by hard-sharing topology" style="width:100%;">
+  <div class="parameter-sharing-plot-matte" style="width:100%;">
+    <img src="/images/parameter-sharing-topology/validation_ce_by_topology.png" alt="Validation cross-entropy by hard-sharing topology">
+  </div>
   <figcaption><strong>Figure 1.</strong> Validation cross-entropy by topology. Cycle width sharing has the lowest mean validation loss among the tested topologies.</figcaption>
 </figure>
 
@@ -97,7 +117,9 @@ Lower validation CE is better. Error bars and standard deviations are across the
 The result in Table 1 is that topology changes loss at fixed parameter count. Cycle width sharing beats balanced random by 0.0601 CE and beats the unshared dense baseline by 0.0885 CE in this training budget. Maximum-distance sharing also beats balanced random by 0.0366 CE, which supports the maximum-distance hypothesis as a useful constraint. It is not the best tested topology.
 
 <figure>
-  <img src="/images/parameter-sharing-topology/delta_vs_random.png" alt="Validation cross-entropy deltas relative to balanced random hard sharing" style="width:90%;">
+  <div class="parameter-sharing-plot-matte" style="width:90%;">
+    <img src="/images/parameter-sharing-topology/delta_vs_random.png" alt="Validation cross-entropy deltas relative to balanced random hard sharing">
+  </div>
   <figcaption><strong>Figure 2.</strong> Parameter-matched sharing topologies relative to balanced random hard sharing. Negative values improve over random.</figcaption>
 </figure>
 
@@ -116,7 +138,9 @@ Thus, within a layer, chunks 0 and 8 share a block, chunks 1 and 9 share a block
 This comparison matters because the parameter count is identical to the depth-sharing and random-sharing variants. Cycle width sharing is not larger. It chooses a different reuse topology.
 
 <figure>
-  <img src="/images/parameter-sharing-topology/sharing_topology_schedules.png" alt="Four hard-sharing schedules over layer and MLP chunk positions" style="width:100%;">
+  <div class="parameter-sharing-plot-matte" style="width:100%;">
+    <img src="/images/parameter-sharing-topology/sharing_topology_schedules.png" alt="Four hard-sharing schedules over layer and MLP chunk positions">
+  </div>
   <figcaption><strong>Figure 3.</strong> Four representative 128-block schedules over the 16-layer by 16-chunk grid. Color identifies block identity modulo the plotting palette; the exact identities are less important than the reuse axis.</figcaption>
 </figure>
 
