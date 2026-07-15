@@ -63,7 +63,7 @@ $$
 
 Given \(x_t\) alone, the derivative is not determined. Given
 \((x_t,x_{t-\tau})\), the vector field is at least representable. This caveat is
-valid, but it is not the main blog-post argument.
+valid, but it is not the main article argument.
 
 ## Source-conditioned FM / augmented bridge matching note
 
@@ -436,4 +436,3 @@ a ball-shaped distribution into a donut-shaped distribution, because small
 changes in the revealed path direction may need to encode large changes in the
 target's radial component. This is a useful research intuition, but it is not
 needed for the main article unless a later empirical section is added.
-

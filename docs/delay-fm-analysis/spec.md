@@ -9,13 +9,13 @@ author: codex
 ## Objective
 
 Turn the report `PN. Delay FM Analysis (2).pdf` from the writable vault reports
-folder into a unified markdown source and then into a scientific blog-post draft
+folder into a unified markdown source and then into a scientific article draft
 for the website.
 
 ## User constraints
 
-- Treat the piece as scientific work, closer to a conference blog post than an
-  ordinary blog post.
+- Treat the piece as scientific work, closer to a conference-style article or
+  short research note than informal web writing.
 - Follow the writing-entrypoint workflow explicitly.
 - Write intermediate temporary markdown files.
 - Pay special attention to sentence structure.
@@ -66,4 +66,3 @@ for the website.
   `docs/delay-fm-analysis/artifacts/08-final-post-candidate.md`
 - Website post:
   `_posts/2026-07-10-delay-flow-matching-learns-the-coupling.md`
-

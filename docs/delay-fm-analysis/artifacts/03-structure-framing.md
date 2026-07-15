@@ -9,7 +9,7 @@ status: temporary-writing-workflow
 
 ## Form
 
-Document type: scientific blog post, close to a conference blog post or short
+Document type: scientific article, close to a conference-style article or short
 technical note.
 
 Audience: ML researchers who know flow matching but may not have read the DFM
