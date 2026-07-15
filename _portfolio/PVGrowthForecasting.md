@@ -2,6 +2,7 @@
 title: "PV Growth Forecasting"
 excerpt: "Multivariate time series forecasting of photovoltaic electricity production in Germany"
 collection: portfolio
+work_order: 14
 date: 2023-06-01
 link: "https://github.com/DavideWiest/PV-Ausbau-Zeitreihenanalyse"
 link_label: "Repository"

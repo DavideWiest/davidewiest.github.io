@@ -5,21 +5,10 @@ permalink: /work/
 author_profile: false
 ---
 
-{% assign sorted_posts = site.portfolio | sort: 'date' | reverse %}
-<div class="archive-entry">
-  <article class="archive-entry__article" itemscope itemtype="http://schema.org/CreativeWork">
-    <div class="archive-entry__body">
-      <h2 class="archive-entry__title" itemprop="headline">
-        <a href="{{ '/files/improved-elastic-weight-consolidation.pdf' | relative_url }}">Improved Elastic Weight Consolidation</a>
-      </h2>
-      <p class="archive-entry__excerpt" itemprop="description">A paper deriving Improved Elastic Weight Consolidation as an optimization constraint for continual learning</p>
-    </div>
-  </article>
-</div>
-
-{% for post in sorted_posts %}
+{% assign combined_work = site.portfolio | concat: site.posts %}
+{% assign sorted_work = combined_work | sort: 'work_order' %}
+{% for post in sorted_work %}
   {% unless post.hidden %}
     {% include editorial-archive-item.html item=post %}
   {% endunless %}
 {% endfor %}
-
