@@ -20,7 +20,7 @@
         <a href="{% if item.external_url %}{{ item.external_url }}{% else %}{{ base_path }}{{ item.url }}{% endif %}" rel="permalink">{{ title }}</a>
       </h2>
 
-      {% if item.excerpt %}
+      {% if item.collection == 'portfolio' and item.excerpt %}
         <p class="archive-entry__excerpt" itemprop="description">{{ item.excerpt | markdownify | remove: '<p>' | remove: '</p>' }}</p>
       {% endif %}
     </div>
