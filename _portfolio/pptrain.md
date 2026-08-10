@@ -4,6 +4,7 @@ excerpt: "A PyTorch-native library for pre-pretraining language models on synthe
 collection: portfolio
 date: 2026-04-01
 hidden: true
+sitemap: false
 link: "https://github.com/Axym-Labs/pptrain"
 link_label: "Repository"
 ---

@@ -1,6 +1,7 @@
 ---
 title: "GPTVault"
 hidden: true
+sitemap: false
 excerpt: "A recursive knowledge accumulation system using large language models to build structured concept graphs"
 collection: portfolio
 link: "https://medium.com/the-modern-scientist/gptvault-building-a-knowledge-base-with-gpt-3-5-bd91fb806260"

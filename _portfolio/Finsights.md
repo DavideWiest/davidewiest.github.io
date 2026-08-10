@@ -1,6 +1,7 @@
 ---
 title: "Finsights"
 hidden: true
+sitemap: false
 excerpt: "A newsletter service that sends automated performance updates for selected stocks"
 collection: portfolio
 link: "https://finsights.info"

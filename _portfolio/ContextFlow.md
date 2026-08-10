@@ -1,6 +1,7 @@
 ---
 title: "ContextFlow"
 hidden: true
+sitemap: false
 excerpt: "A .NET library for building structured LLM interactions through dependency injection and fluent interfaces"
 collection: portfolio
 link: "https://github.com/DavideWiest/ContextFlow"

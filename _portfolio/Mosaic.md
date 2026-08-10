@@ -1,6 +1,7 @@
 ---
 title: "Mosaic"
 hidden: true
+sitemap: false
 excerpt: "A link-as-bio platform for projects, built with PHP and TailwindCSS"
 collection: portfolio
 link: "https://github.com/DavideWiest/Mosaic"

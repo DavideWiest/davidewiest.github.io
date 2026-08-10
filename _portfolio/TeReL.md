@@ -4,7 +4,8 @@ excerpt: "A spatially and temporally local learning rule derived from a VICReg-s
 collection: portfolio
 date: 2026-07-15
 work_order: 2
-external_url: "https://axym.org/work/terel"
+external_url: "https://axym.org/work/terel/"
+sitemap: false
 link: "https://github.com/Axym-Labs/TeReL"
 link_label: "Code"
 ---

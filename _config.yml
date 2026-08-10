@@ -214,6 +214,12 @@ collections:
 
 # These settings control how pages and collections are included in the site
 defaults:
+  # Static documents are linked from their relevant pages and should not be
+  # submitted as separate search landing pages.
+  - scope:
+      path: "files"
+    values:
+      sitemap: false
   # _posts
   - scope:
       path: ""

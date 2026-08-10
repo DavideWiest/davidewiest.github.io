@@ -1,6 +1,7 @@
 ---
 title: "TimeWise"
 hidden: true
+sitemap: false
 excerpt: "A workforce scheduler using integer linear programming to generate optimal shift assignments"
 collection: portfolio
 link: "https://github.com/TimeWise-dev/TimeWise"

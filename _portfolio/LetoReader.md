@@ -1,6 +1,7 @@
 ---
 title: "LetoReader"
 hidden: true
+sitemap: false
 excerpt: "A minimalistic, highly customizable speed reader built as an open-source alternative to paid tools"
 collection: portfolio
 link: "https://reader.davidewiest.com"

@@ -4,7 +4,8 @@ excerpt: "An optimization-theoretic derivation of EWC and IEWC for continual lea
 collection: portfolio
 date: 2026-07-15
 work_order: 1
-external_url: "https://axym.org/work/iewc"
+external_url: "https://axym.org/work/iewc/"
+sitemap: false
 link: "https://github.com/Axym-Labs/iewc"
 link_label: "Code"
 ---
