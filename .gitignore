@@ -22,6 +22,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Local project documentation
+docs/
+
 # Backup files
 *.bak
 *.bak*
