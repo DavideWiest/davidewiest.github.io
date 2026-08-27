@@ -1,5 +1,6 @@
 # Progress
 
+- WRAPUP (2026-08-27): Pushed commit `ed1eb33`; GitHub Actions run `33090319425` passed LaTeX rendering, Jekyll build, canonical indexing verification, and `gh-pages` deployment. Live checks returned 200 for all six retained posts, 404 for both retired routes, and a sitemap containing exactly the six retained post URLs. The chemokinetic page exposes the expected title, equations, sections, and MNIST values.
 - VERIFICATION (2026-08-27): Front matter, document delimiters, display/inline math delimiters, whitespace, and diff checks pass. The repository's exact renderer and Jekyll checks require `make4ht` and Bundler, which are unavailable locally and cannot be installed without host elevation; publication will be verified through the repository's pinned GitHub Actions workflow after push.
 - IMPLEMENTATION (2026-08-27): Removed the probability-theorems and recursive-UoM publication sources and archives; updated the indexing URL contract accordingly.
 - IMPLEMENTATION (2026-08-27): Replaced the chemokinesis article with a 40%-shorter Ray-CK note covering oracle action, effective dimension, the causal information barrier, projected oracle, the operational method, the requested MNIST measurements, and deferred derivations.
