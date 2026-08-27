@@ -23,11 +23,9 @@ fi
 expected_urls=(
   "https://davidewiest.com/"
   "https://davidewiest.com/posts/2026/05/chemokinesis-curse-of-dimensionality/"
-  "https://davidewiest.com/posts/2026/05/underrated-probability-theorems/"
   "https://davidewiest.com/posts/2026/06/irregular-parameter-sharing-transformers/"
   "https://davidewiest.com/posts/2026/06/pptrain-ready-to-use-prepretraining/"
   "https://davidewiest.com/posts/2026/06/rank-1-fisher-no-task-to-remember/"
-  "https://davidewiest.com/posts/2026/06/recursive-union-of-manifolds/"
   "https://davidewiest.com/posts/2026/07/delay-flow-matching-learns-the-coupling/"
   "https://davidewiest.com/posts/2026/07/prepretraining-tested-it-doesnt-work/"
   "https://davidewiest.com/work/"
