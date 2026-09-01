@@ -1,0 +1,105 @@
+%---
+% title: "What Delay Flow Matching conditions on"
+% date: 2026-07-10
+% work_order: 4
+% permalink: /posts/2026/07/delay-flow-matching-learns-the-coupling/
+% tags:
+%   - machine-learning
+%   - flow-matching
+%   - generative-models
+%   - theory
+%---
+\documentclass[11pt]{article}
+\usepackage{publication-web}
+\begin{document}
+
+Ordinary flow matching fits a marginal vector field under a sampled coupling of source and target endpoints. Delay Flow Matching (DFM) also conditions the vector field on an earlier point from the same constructed path. When both points come from an invertible deterministic interpolation of one endpoint pair, they identify that pair. The DFM regression target is then the target vector for that pair, rather than an average over all pairs passing through the current state.
+
+\section{The two regression targets}\label{the-two-objectives}
+
+Let a coupling pair source \(x_0\) with target \(x_1\), and define the constructed path and its target vector by
+
+\[
+x_t=\alpha_tx_0+\beta_tx_1,
+\qquad
+u_t=\dot\alpha_tx_0+\dot\beta_tx_1.
+\]
+
+Under squared loss, ordinary flow matching has the population solution
+
+\[
+v^*_{\mathrm{FM}}(t,x)=\mathbb E[u_t\mid x_t=x].
+\]
+
+If target vectors from several endpoint pairs meet at \(x\), this conditional mean averages them. DFM instead uses \(v_\theta(t,x_t,x_{t-\tau})\), whose population solution is
+
+\[
+v^*_{\mathrm{DFM}}(t,x,y)
+=\mathbb E[u_t\mid x_t=x,\ x_{t-\tau}=y].
+\]
+
+The two objectives therefore estimate different conditional expectations.
+
+\section{When two points identify the endpoints}\label{two-points-recover-the-endpoints}
+
+Set \(s=t-\tau\), and assume that both \(x_t\) and \(x_s\) follow the endpoint interpolation above. This assumption excludes initial-history intervals in which a DFM construction defines \(x_s\) by a separate history function. If
+
+\[
+\Delta_{t,s}=\alpha_t\beta_s-\alpha_s\beta_t\neq0,
+\]
+
+then the coordinatewise \(2\times2\) system is invertible:
+
+\[
+x_0=\frac{\beta_sx_t-\beta_tx_s}{\Delta_{t,s}},
+\qquad
+x_1=\frac{-\alpha_sx_t+\alpha_tx_s}{\Delta_{t,s}}.
+\]
+
+Substitution gives the target vector directly from the two DFM inputs,
+
+\[
+u_t(x_t,x_s)=
+\frac{(\dot\alpha_t\beta_s-\dot\beta_t\alpha_s)x_t
++(\alpha_t\dot\beta_t-\beta_t\dot\alpha_t)x_s}
+{\Delta_{t,s}}.
+\]
+
+For the straight path \(x_r=(1-r)x_0+rx_1\), this reduces to
+
+\[
+u_t=x_1-x_0=\frac{x_t-x_{t-\tau}}{\tau}
+\qquad (t>\tau).
+\]
+
+Under the determinant condition, the DFM target is deterministic given its two state inputs, whereas ordinary flow matching still estimates \(\mathbb E[u_t\mid x_t]\) (\href{https://arxiv.org/abs/2210.02747}{Lipman et al.~2022}; \href{https://arxiv.org/abs/2302.00482}{Tong et al.~2023}). Conditioning on information that identifies the endpoint pair makes DFM analogous to Augmented Bridge Matching, which conditions on the initial sample to preserve the training coupling (\href{https://arxiv.org/abs/2311.06978}{De Bortoli et al.~2023}).
+
+\section{What an endpoint readout requires}\label{endpoint-readout}
+
+For a current state \(x_t\) and a fitted vector prediction \(\widehat u_t\), the linear-in-endpoints schedule implies
+
+\[
+\widehat x_1=
+\frac{\alpha_t\widehat u_t-\dot\alpha_tx_t}
+{\alpha_t\dot\beta_t-\dot\alpha_t\beta_t},
+\]
+
+provided the denominator is nonzero. This identity gives the endpoint implied by a vector prediction; it does not by itself make the first model call a pair-specific endpoint predictor.
+
+At time zero with constant history and a product coupling, the input contains \(x_0\) but no information about the independently sampled \(x_1\). The squared-loss solution is then a conditional mean vector, and the formula above returns a conditional mean endpoint. A pair-specific endpoint estimate therefore requires an informative history function or a delayed state produced later in the rollout.
+
+\section{Why the coupling matters}\label{coupling-choice}
+
+Once the two-state input identifies an endpoint pair, the training target retains the coupling used to sample that pair. A product coupling therefore supplies arbitrary independent pairings, while paired observations, optimal transport, minibatch matching, or a bridge construction supply pairings with additional structure (\href{https://arxiv.org/abs/2304.14772}{Pooladian et al.~2023}; \href{https://arxiv.org/abs/2303.16852}{Shi et al.~2023}). This choice determines which pair-specific target vectors DFM fits.
+
+\section{Scope: delay differential equations}\label{where-the-argument-does-not-apply}
+
+For a delay differential equation,
+
+\[
+\dot x(t)=f(x(t),x(t-\tau)),
+\]
+
+the earlier state is part of the physical state and need not encode two interpolation endpoints. The endpoint-inversion argument applies only to paths constructed from endpoint pairs, not to general delayed dynamics (\href{https://arxiv.org/abs/2102.10801}{Zhu et al.~2021}; \href{https://openreview.net/forum?id=6lH1XblLpo}{Zhao et al.~2026}).
+
+\end{document}

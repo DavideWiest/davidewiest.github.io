@@ -1,0 +1,52 @@
+%---
+% title: "pptrain: a common interface for prepretraining experiments"
+% date: 2026-06-18
+% work_order: 3
+% permalink: /posts/2026/06/pptrain-ready-to-use-prepretraining/
+% tags:
+%   - machine-learning
+%   - language-models
+%   - pretraining
+%   - software
+%---
+\documentclass[11pt]{article}
+\usepackage{publication-web}
+\begin{document}
+
+Prepretraining initializes a language model on synthetic or abstract sequences before continuing training on natural text. \href{https://github.com/Axym-Labs/pptrain}{\texttt{pptrain}} exposes paper-derived task generators through common interfaces for upstream training, weight transfer, and evaluation.
+
+\section{Run a task}\label{run-a-task}
+
+\begin{verbatim}
+pip install pptrain
+\end{verbatim}
+
+\begin{verbatim}
+from pptrain import PrePreTrainer, RunConfig, create_task
+from pptrain.integrations import HFCausalLMAdapter, HFModelConfig
+
+trainer = PrePreTrainer(
+    task=create_task("simpler_tasks", {
+        "preset": "paper_binary_1m",
+        "sequence_count": 256,
+        "eval_sequence_count": 64,
+        "max_length": 128,
+    }),
+    model_adapter=HFCausalLMAdapter(
+        HFModelConfig(model_name_or_path="sshleifer/tiny-gpt2")
+    ),
+    run_config=RunConfig(output_dir="runs/initial", max_steps=20),
+)
+
+bundle = trainer.fit().load_transfer_bundle()
+\end{verbatim}
+
+The built-in families generate neural cellular automata rollouts (\texttt{nca}), balanced-bracket sequences (\texttt{dyck}), short programs (\texttt{procedural}), copy, set, and query transformations (\texttt{simpler\_tasks}), induction, deduction, and abduction problems (\texttt{lime}), and synthetic document transformations (\texttt{summarization}). Paper-derived presets expose configurable generation and dataset fields.
+
+\section{Verify and evaluate}\label{test-the-mechanism}
+
+Reference-parity tests compare normalized examples or token sequences with fixtures produced by the original LIME, synthetic-summarization, procedural-pretraining, and NCA implementations. The replication interface compares downstream training after synthetic initialization with both random initialization and a natural-text warmup, then exports the resulting metrics, plots, tables, and reports.
+
+A custom symbolic generator implements \texttt{SymbolicTaskFamily} by defining how an example is sampled, executed, serialized, and tokenized. A method that requires a different dataset construction or loss implements \texttt{Task} directly.
+
+\end{document}
