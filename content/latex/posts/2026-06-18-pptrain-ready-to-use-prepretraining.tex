@@ -1,5 +1,5 @@
 %---
-% title: "pptrain, a library for prepretraining"
+% title: "pptrain: a common interface for prepretraining experiments"
 % date: 2026-06-18
 % work_order: 3
 % permalink: /posts/2026/06/pptrain-ready-to-use-prepretraining/
@@ -13,7 +13,7 @@
 \usepackage{publication-web}
 \begin{document}
 
-Prepretraining first trains a language model on synthetic tasks, then transfers it to natural text. \href{https://github.com/Axym-Labs/pptrain}{\texttt{pptrain}} turns paper-specific generators and training scripts into one testable interface.
+Prepretraining initializes a language model on synthetic or abstract sequences before continuing training on natural text. \href{https://github.com/Axym-Labs/pptrain}{\texttt{pptrain}} exposes paper-derived task generators through common interfaces for upstream training, weight transfer, and evaluation.
 
 \section{Run a task}\label{run-a-task}
 
@@ -41,12 +41,12 @@ trainer = PrePreTrainer(
 bundle = trainer.fit().load_transfer_bundle()
 \end{verbatim}
 
-The packaged task families cover neural-cellular-automata rollouts (\texttt{nca}), balanced brackets (\texttt{dyck}), abstract programs (\texttt{procedural}), copy/set/query transformations (\texttt{simpler\_tasks}), mathematical-reasoning primitives (\texttt{lime}), and synthetic document transformations (\texttt{summarization}). Paper-derived presets remain configurable.
+The built-in families generate neural cellular automata rollouts (\texttt{nca}), balanced-bracket sequences (\texttt{dyck}), short programs (\texttt{procedural}), copy, set, and query transformations (\texttt{simpler\_tasks}), induction, deduction, and abduction problems (\texttt{lime}), and synthetic document transformations (\texttt{summarization}). Paper-derived presets expose configurable generation and dataset fields.
 
-\section{Test the mechanism}\label{test-the-mechanism}
+\section{Verify and evaluate}\label{test-the-mechanism}
 
-Reference-parity checks compare local outputs with original-source fixtures for LIME, synthetic summarization, procedural training, and NCA. The evaluation path tests downstream transfer against random initialization and natural-text warmups, and exports metrics, plots, CSVs, and reports through the same task interface.
+Reference-parity tests compare normalized examples or token sequences with fixtures produced by the original LIME, synthetic-summarization, procedural-pretraining, and NCA implementations. The replication interface compares downstream training after synthetic initialization with both random initialization and a natural-text warmup, then exports the resulting metrics, plots, tables, and reports.
 
-Custom symbolic generators implement \texttt{SymbolicTaskFamily}: sample, execute, serialize, and tokenize an example. Tasks requiring a different dataset or loss path implement \texttt{Task} directly.
+A custom symbolic generator implements \texttt{SymbolicTaskFamily} by defining how an example is sampled, executed, serialized, and tokenized. A method that requires a different dataset construction or loss implements \texttt{Task} directly.
 
 \end{document}

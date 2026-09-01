@@ -1,5 +1,5 @@
 %---
-% title: "Chemokinetic Optimization: The Information Barrier"
+% title: "Chemokinetic optimization under stochastic actuation"
 % date: 2026-05-10
 % work_order: 9
 % permalink: /posts/2026/05/chemokinesis-curse-of-dimensionality/
@@ -12,30 +12,30 @@
 \usepackage{publication-web}
 \begin{document}
 
-Consider optimization when the dynamics supply an isotropic random unit direction \(u_t\) and the controller chooses only a nonnegative speed:
+In chemokinetic optimization, an external stochastic process supplies an isotropic random unit direction \(u_t\), while the controller chooses only a nonnegative step length \(s_t\):
 
 \[
 \theta_{t+1}=\theta_t+s_tu_t,\qquad s_t\geq0.
 \]
 
-The ray cannot be reversed or probed before the move; feedback is a scalar loss. Locally,
+The controller must choose \(s_t\) before observing any loss along the current direction, cannot replace \(u_t\) by \(-u_t\), and receives only scalar loss values. With \(g=\nabla L(\theta)\) and \(H=\nabla^2L(\theta)\), the local loss change is
 
 \[
 L(\theta+su)-L(\theta)=qs+\tfrac12hs^2+o(s^2),
 \qquad q=g^\top u,\quad h=u^\top Hu.
 \]
 
-The problem separates into exploiting a ray when \(q\) is known and predicting \(q\) causally when it is not.
+Two questions follow: how much progress is possible when the current directional slope \(q\) is known, and how accurately \(q\) can be predicted before the move.
 
-\section{Oracle Ray-CK and effective dimension}\label{oracle-ray-ck}
+\section{One-sided ray action and effective dimension}\label{oracle-ray-ck}
 
-If \(q\) and \(h>0\) are known before moving, the optimal admissible action is
+If \(q\) and \(h>0\) are available before the move, minimizing the local quadratic over \(s\geq0\) gives
 
 \[
 s^*(u)=\frac{(-q)_+}{h}.
 \]
 
-It stops on uphill rays and never reverses them. For a quadratic \(L(x)=\tfrac12x^\top Hx\), the best scalar-multiplier version of this update loses a factor \(2d_{\mathrm{eff}}\) against exact gradient line search, where
+The positive part assigns zero motion when \(q\geq0\). For a quadratic \(L(x)=\tfrac12x^\top Hx\), consider the curvature-independent update \(x^+=x+\alpha(-g^\top U)_+U\), where \(U\) is uniform on the unit sphere and one scalar \(\alpha\) is chosen to maximize expected progress. Its optimal expected decrease relative to exact gradient line search is
 
 \[
 d_{\mathrm{eff}}(g,H)
@@ -43,15 +43,15 @@ d_{\mathrm{eff}}(g,H)
 \qquad
 \lambda_g=\frac{g^\top Hg}{\lVert g\rVert^2},
 \qquad
-\frac{\Delta^*_{\mathrm{Ray}}}{\Delta^*_{\mathrm{GD}}}
+\frac{\Delta^*_{\alpha\text{-Ray}}}{\Delta^*_{\mathrm{GD}}}
 =\frac{1}{2d_{\mathrm{eff}}}.
 \]
 
-If \(H=\lambda P\) for a rank-\(r\) projector and \(g\in\operatorname{range}(P)\), then \(d_{\mathrm{eff}}=d(r+2)/(d+2)\to r+2\). Flat nuisance coordinates therefore need not increase oracle cost.
+This ratio concerns the single-\(\alpha\) update, not the directional-curvature oracle above. If \(H=\lambda P\) for a rank-\(r\) projector and \(g\in\operatorname{range}(P)\), then \(d_{\mathrm{eff}}=d(r+2)/(d+2)\to r+2\). With fixed active rank \(r\), adding exactly flat coordinates therefore leaves the limiting progress ratio unchanged.
 
 \section{The causal information barrier}\label{causal-information-barrier}
 
-Without a same-ray probe, the relevant quantities are the posterior directional slope and curvature,
+Without a same-direction probe, the information available before the move is summarized by the posterior mean slope and curvature,
 
 \[
 \mu_t(u_t)=\mathbb E[u_t^\top g_t\mid\mathcal F_t^-,u_t],
@@ -59,38 +59,38 @@ Without a same-ray probe, the relevant quantities are the posterior directional 
 \kappa_t(u_t)=\mathbb E[u_t^\top H_tu_t\mid\mathcal F_t^-,u_t].
 \]
 
-The Bayes action under the local quadratic model is \(s_t^*=(-\mu_t)_+/\kappa_t\). Directly predicting the ray response cannot beat the information available for estimating \(\mu_t\).
+For \(\kappa_t>0\), minimizing the conditional expected local quadratic gives \(s_t^*=(-\mu_t)_+/\kappa_t\). Replacing a gradient estimator with a direct scalar predictor does not add information about \(\mu_t\).
 
-For \(g\sim\mathcal N(0,\sigma^2I_d)\), \(M\leq d\) noiseless random measurements \(y_i=u_i^\top g\) reveal only the projection of \(g\) onto their span \(S\). With constant ray curvature, the posterior predictor retains exactly
+For \(g\sim\mathcal N(0,\sigma^2I_d)\), \(M\leq d\) noiseless random measurements \(y_i=u_i^\top g\) reveal only the projection of \(g\) onto their span \(S\). When directional curvature is constant, the posterior predictor retains exactly
 
 \[
 \frac{\mathbb E[(u^\top P_Sg)^2]}{\mathbb E[(u^\top g)^2]}
 =\frac{M}{d}
 \]
 
-of oracle-Ray progress. Parallel measurements remove latency, not this orientation cost. Standard zeroth-order methods avoid the barrier by probing and retaining the current direction; SPSA and Random Pursuit are therefore solving an easier information problem (\href{https://doi.org/10.1109/9.119632}{Spall 1992}; \href{https://doi.org/10.1137/110853613}{Stich et al.~2013}).
+of the current-slope oracle's expected progress. Parallel evaluation reduces acquisition time but does not increase the dimension of \(S\). SPSA and Random Pursuit can instead evaluate and retain the current direction, so their observations contain information that this actuation model forbids (\href{https://doi.org/10.1109/9.119632}{Spall 1992}; \href{https://doi.org/10.1137/110853613}{Stich et al.~2013}).
 
 \section{Projected oracle and operational optimizer}\label{projected-and-operational}
 
-After a warmup reveals \(P_Sg\), the projected oracle uses
+Suppose a warmup identifies \(P_Sg\), the component of the local gradient in a measured subspace \(S\). The projected oracle uses
 
 \[
 s_S^*(u)=\frac{(-u^\top P_Sg)_+}{u^\top Hu}.
 \]
 
-Under locally isotropic ray curvature, its expected progress fraction is \(\lVert P_Sg\rVert^2/\lVert g\rVert^2\), averaging to \(m/d\) for a random \(m\)-dimensional \(S\). Partial information remains useful because a fresh ray need not lie inside \(S\).
+When \(u^\top Hu\) is constant over directions, its expected progress fraction is \(\lVert P_Sg\rVert^2/\lVert g\rVert^2\), whose expectation is \(m/d\) for a random \(m\)-dimensional \(S\). A fresh direction need not lie in \(S\), because its projection onto \(S\) still predicts part of its slope.
 
-A lean operational version obtains parallel finite-difference slopes \(y_i=[L(\theta_0+\delta u_i)-L(\theta_0)]/\delta\), stacks the directions as rows of \(V\), and fits
+An operational approximation collects parallel forward differences \(y_i=[L(\theta_0+\delta u_i)-L(\theta_0)]/\delta\), stacks the directions as rows of \(V\), and estimates
 
 \[
 \widehat g=V^\top(VV^\top+\lambda I)^{-1}y.
 \]
 
-It then applies \(\theta_{t+1}=\theta_t+a_t(-u_t^\top\widehat g_t)_+u_t\), periodically adding displacement--loss chords and refitting. One global ray scale replaces an unstable online Hessian model.
+It then applies \(\theta_{t+1}=\theta_t+a_t(-u_t^\top\widehat g_t)_+u_t\) and periodically refits after adding loss differences measured across realized aggregate displacements. The update uses one scalar gain \(a_t\) and does not estimate \(H\) online.
 
 \section{MNIST check}\label{mnist-check}
 
-On MNIST, the operational method reached \(2.05\) negative log-likelihood versus \(1.97\) for gradient descent. Matching a GD trajectory required about \(30\) loss evaluations per GD step for oracle Ray-CK and about \(200\) for the operational optimizer. The small endpoint gap but large evaluation gap isolates the problem: ray exploitation is governed by \(d_{\mathrm{eff}}\), while causal orientation acquisition dominates the implementable method.
+On MNIST, the operational method reached \(2.05\) negative log-likelihood, compared with \(1.97\) for gradient descent. Matching the gradient-descent loss trajectory required about \(30\) loss evaluations per gradient-descent step for the directional oracle and about \(200\) for the operational method. Comparable endpoint loss therefore did not imply comparable evaluation efficiency. The known-current-ray results describe the cost of exploiting a direction, whereas the operational method must also estimate which component of each new direction is descending.
 
 \section{Derivations}\label{derivations}
 
@@ -103,8 +103,8 @@ For \(x^+=x+\alpha(-g^\top U)_+U\) with \(U\) uniform on the sphere,
 \left(\operatorname{tr}(H)\lVert g\rVert^2+2g^\top Hg\right).
 \]
 
-Minimizing in \(\alpha\) and dividing by the exact gradient-line-search decrease \(\lVert g\rVert^4/(2g^\top Hg)\) gives the \(2d_{\mathrm{eff}}\) ratio.
+Minimizing over \(\alpha\) and dividing by the exact gradient-line-search decrease \(\lVert g\rVert^4/(2g^\top Hg)\) gives the \(1/(2d_{\mathrm{eff}})\) progress ratio.
 
-Conditioning an isotropic Gaussian on \(M\) exact projections leaves an independent isotropic component in \(S^\perp\), so \(\widehat g=P_Sg\). Since \(\mathbb E_u[(u^\top a)^2]=\lVert a\rVert^2/d\) and \(\mathbb E\lVert P_Sg\rVert^2=(M/d)\mathbb E\lVert g\rVert^2\), the causal and projected-oracle fractions follow.
+Conditioning an isotropic Gaussian on \(M\) exact projections leaves an independent isotropic component in \(S^\perp\), so \(\widehat g=P_Sg\). The identities \(\mathbb E_u[(u^\top a)^2]=\lVert a\rVert^2/d\) and \(\mathbb E\lVert P_Sg\rVert^2=(M/d)\mathbb E\lVert g\rVert^2\) give both \(M/d\) fractions.
 
 \end{document}

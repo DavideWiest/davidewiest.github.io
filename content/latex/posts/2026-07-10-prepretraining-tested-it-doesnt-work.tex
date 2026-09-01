@@ -1,5 +1,5 @@
 %---
-% title: "Prepretraining tested: it doesn't work"
+% title: "Six synthetic curricula under two controls"
 % date: 2026-07-10
 % work_order: 5
 % permalink: /posts/2026/07/prepretraining-tested-it-doesnt-work/
@@ -13,37 +13,35 @@
 \usepackage{publication-web}
 \begin{document}
 
-Prepretraining first trains a language model on synthetic or abstract data, then transfers it to natural text. The empirical claim is that the synthetic phase produces a better initialization. A shared \href{https://github.com/Axym-Labs/pptrain}{\texttt{pptrain}} evaluation tested six proposed mechanisms---NCA sequences, LIME reasoning, simpler symbolic tasks, procedural programs, Dyck languages, and synthetic summarization---on a Pythia-410M architecture with three seeds (\href{https://arxiv.org/abs/2603.10055}{Lee et al.~2026}; \href{https://proceedings.mlr.press/v139/wu21c.html}{Wu et al.~2021}; \href{https://arxiv.org/abs/2206.10139}{Wu et al.~2022}; \href{https://arxiv.org/abs/2601.21725}{Jiang et al.~2026}; \href{https://aclanthology.org/2021.findings-emnlp.273/}{Krishna et al.~2021}).
+Prepretraining trains a language model on synthetic or abstract data before continuing on natural text. Its transfer claim is that the synthetic stage yields a better initialization than either random initialization or the same upstream training budget on natural text. A shared \href{https://github.com/Axym-Labs/pptrain}{\texttt{pptrain}} protocol tested six synthetic curricula---NCA sequences, LIME reasoning tasks, simpler symbolic transformations, procedural programs, Dyck languages, and synthetic summarization---on a Pythia-410M architecture with three seeds (\href{https://arxiv.org/abs/2603.10055}{Lee et al.~2026}; \href{https://proceedings.mlr.press/v139/wu21c.html}{Wu et al.~2021}; \href{https://arxiv.org/abs/2206.10139}{Wu et al.~2022}; \href{https://arxiv.org/abs/2601.21725}{Jiang et al.~2026}; \href{https://aclanthology.org/2021.findings-emnlp.273/}{Krishna et al.~2021}).
 
-Under this protocol, five synthetic methods finished worse than random initialization. Simpler tasks improved final evaluation loss by \(0.16\%\). A natural-text warmup using the upstream budget beat all six, and the reasoning and algorithmic probes showed no transfer gain.
+Five curricula had higher mean final evaluation loss than random initialization. Simpler tasks had a mean loss \(0.16\%\) lower than random initialization, while every synthetic curriculum had higher mean loss than the natural-text warmup. The evaluated reasoning and algorithmic probes showed no improvement from synthetic initialization.
 
 \section{Protocol}\label{protocol}
 
-The model used the Pythia-410M architecture and tokenizer, a 12,288-token context, public streamed text datasets, and separate warmup, train, and evaluation slices (\href{https://arxiv.org/abs/2304.01373}{Biderman et al.~2023}). Every task compared three conditions per seed: downstream training from random initialization; synthetic upstream training followed by downstream transfer; and an upstream natural-text warmup followed by the same downstream phase. The shared public-data setup tests transfer under one controlled proxy protocol rather than reproducing every original corpus and budget.
+The model used the Pythia-410M architecture and tokenizer with randomly initialized weights, a 12,288-token context, streamed public text datasets, and disjoint warmup, training, and evaluation slices (\href{https://arxiv.org/abs/2304.01373}{Biderman et al.~2023}). Every curriculum compared three conditions per seed: downstream training from random initialization, synthetic upstream training followed by the same downstream phase, and a natural-text upstream phase followed by that downstream phase. This common public-data protocol is a proxy comparison, not an exact reproduction of every source paper's corpus and training budget.
 
 \publicationfigure[\linewidth]
   {images/pptrain-replication/claim_matrix.png}
   {/images/pptrain-replication/claim_matrix.png}
   {Claim matrix for the pptrain proxy run}
-  {\textbf{Figure 1.} Claim matrix under the three-seed rule. Green denotes support, red contradiction, and grey an inconclusive or unevaluated claim.}
+  {Claim matrix. A supported or contradicted comparison requires both the corresponding mean direction and agreement from at least two of three seeds; grey cells are inconclusive or unevaluated.}
 
 \section{Results}\label{results}
-
-NCA, LIME, Procedural, Dyck, and Summarization failed to beat random initialization; every synthetic method underperformed natural-text prepretraining.
 
 \publicationfigure[\linewidth]
   {images/pptrain-replication/transfer_gap_vs_scratch.png}
   {/images/pptrain-replication/transfer_gap_vs_scratch.png}
   {Synthetic transfer gap versus random-init baseline}
-  {\textbf{Figure 2.} Mean evaluation-loss improvement over random initialization. Positive values are better; only Simpler tasks is positive.}
+  {Mean percentage reduction in final evaluation loss relative to random initialization. Positive values denote lower loss; only Simpler tasks has a positive mean.}
 
 \publicationfigure[\linewidth]
   {images/pptrain-replication/compute_matched_nlp_prepretraining_gap.png}
   {/images/pptrain-replication/compute_matched_nlp_prepretraining_gap.png}
   {Synthetic transfer gap versus NLP prepretraining}
-  {\textbf{Figure 3.} Mean evaluation-loss improvement over natural-text prepretraining. All six values are negative.}
+  {Mean percentage reduction in final evaluation loss relative to natural-text prepretraining. All six means are negative.}
 
-Table 1. Final downstream losses and relative gaps. Lower is better; positive gaps favor synthetic transfer.
+Table 1. Mean final downstream losses and relative gaps across three seeds. Lower loss is better; positive gaps favor synthetic initialization.
 
 \begin{longtable}[]{@{}
   >{\raggedright\arraybackslash}p{(\linewidth - 18\tabcolsep) * \real{0.0789}}
@@ -62,21 +60,21 @@ Task
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
 Synthetic preset
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Scratch loss
+Random-init loss
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Synthetic loss
+Synthetic-init loss
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-NLP loss
+Text-warmup loss
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Synthetic vs scratch
+Synthetic vs random
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Synthetic vs NLP
+Synthetic vs text
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Scratch ppl
+Random-init ppl
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Synthetic ppl
+Synthetic-init ppl
 \end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-NLP ppl
+Text-warmup ppl
 \end{minipage} \\
 \midrule\noalign{}
 \endhead
@@ -90,18 +88,18 @@ Dyck & \texttt{paper\_k64} & 6.242 & 6.583 & 6.050 & -5.46\% & -8.79\% & 513.8 &
 Summarization & \texttt{paper\_ourtasks\_subset\_100k} & 5.828 & 6.623 & 5.559 & -13.66\% & -19.14\% & 339.6 & 766.1 & 259.7 \\
 \end{longtable}
 
-The loss curves preserved this ordering through training, not only at the endpoint. NCA also failed its upstream task: held-out next-patch token accuracy was \(0.0024\%\), downstream CE was \(6.779\) versus \(6.232\) from scratch and \(6.044\) after natural-text warmup, and effective rank fell to \(4.6\) versus \(48.4\) from scratch. Reference-parity fixtures rule out a changed generator as the explanation.
+For NCA, held-out next-patch token accuracy was \(0.0024\%\); mean downstream cross-entropy was \(6.779\), compared with \(6.232\) from random initialization and \(6.044\) after natural-text warmup; and mean activation effective rank was \(4.6\), compared with \(48.4\) from random initialization. The generator passed the library's reference-parity fixtures, so the failure is not attributable to the generator outputs covered by those fixtures.
 
 \publicationfigure[\linewidth]
   {images/pptrain-replication/nca_showcase.png}
   {/images/pptrain-replication/nca_showcase.png}
   {NCA upstream accuracy, downstream loss, and representation diagnostics}
-  {\textbf{Figure 4.} NCA was barely learned upstream and transferred worse than both controls.}
+  {NCA upstream accuracy, downstream loss, and representation measurements for the two controls and synthetic initialization.}
 
 \section{Interpretation}\label{interpretation}
 
-The controls locate two failures. Random initialization tests whether synthetic training helps at all; a natural-text warmup tests whether synthetic data is the best use of the same upstream phase. Synthetic transfer fails the first comparison in five tasks and the second in all six. Stiffening under covariate shift is one compatible mechanism: warm starts can generalize worse than retraining, networks can lose plasticity, and shifted fine-tuning can distort useful features (\href{https://arxiv.org/abs/1910.08475}{Ash and Adams 2020}; \href{https://arxiv.org/abs/2306.13812}{Dohare et al.~2023}; \href{https://arxiv.org/abs/2202.10054}{Kumar et al.~2022}).
+The random-initialization control asks whether the synthetic stage improves downstream training at all. The natural-text control asks whether the upstream updates are better spent on synthetic data or text. A loss of network plasticity during synthetic training, followed by distribution shift to natural text, could produce the observed ordering; related work documents cases of harmful warm starts, loss of plasticity, and feature distortion during shifted fine-tuning (\href{https://arxiv.org/abs/1910.08475}{Ash and Adams 2020}; \href{https://arxiv.org/abs/2306.13812}{Dohare et al.~2023}; \href{https://arxiv.org/abs/2202.10054}{Kumar et al.~2022}). This experiment does not distinguish that hypothesis from other causes.
 
-Under this Pythia-410M public-data protocol, synthetic prepretraining does not provide a useful general initialization. Future claims need three controls: beat random initialization, beat an equal upstream budget of natural text, and verify that the synthetic task was learned.
+Under this Pythia-410M public-data protocol, none of the six synthetic curricula produced lower mean final loss than natural-text prepretraining, and five produced higher mean loss than random initialization. Future transfer claims should report all three checks: comparison with random initialization, comparison with an equal natural-text upstream phase, and performance on the synthetic task itself.
 
 \end{document}

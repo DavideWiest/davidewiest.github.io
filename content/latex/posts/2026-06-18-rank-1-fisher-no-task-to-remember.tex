@@ -1,5 +1,5 @@
 %---
-% title: "Critical flaws in `Avoid Catastrophic Forgetting with Rank-1 Fisher from Diffusion Models'"
+% title: "Why a low-SNR rank-one gradient moment does not justify EWC"
 % date: 2026-06-18
 % work_order: 8
 % permalink: /posts/2026/06/rank-1-fisher-no-task-to-remember/
@@ -13,93 +13,63 @@
 \usepackage{publication-web}
 \begin{document}
 
-\href{https://arxiv.org/abs/2509.23593}{Avoid Catastrophic Forgetting with Rank-1 Fisher from Diffusion Models} proposes EWC with a near rank-1 empirical Fisher observed at low diffusion SNR. The theorem, algorithm, and continual-learning interpretation do not describe the same object: the low-SNR limit is task-independent, the algorithm averages over all timesteps, the linear surrogate lacks a nonlinear stability argument, and the true Fisher in the analyzed Gaussian regime is isotropic.
+\href{https://arxiv.org/abs/2509.23593}{Avoid Catastrophic Forgetting with Rank-1 Fisher from Diffusion Models} forms the second moment \(F_{\mathrm E}=\mathbb E[gg^\top]\) of per-example diffusion-loss gradients and uses a rank-one approximation to \(F_{\mathrm E}\) in Elastic Weight Consolidation (EWC). The proposed justification has three separate problems: the linear proof contains an invalid matrix identity, the leading low-SNR term is independent of the old task, and \(F_{\mathrm E}\) is not generally Fisher information.
 
 \section{What EWC must preserve}\label{what-ewc-must-preserve}
 
-EWC adds an old-task quadratic penalty to the new-task loss,
+EWC adds a local old-task penalty to the new-task loss,
 
 \[
 L_B(\theta)+\frac{\lambda}{2}(\theta-\theta_A^\star)^\top F_A(\theta-\theta_A^\star).
 \]
 
-In its Bayesian derivation, \(F_A\) approximates local old-task posterior curvature (\href{https://arxiv.org/abs/1612.00796}{Kirkpatrick et al.}). With \(F_A\approx\lambda_1vv^\top\), only movement along \(v\) is protected. A continual-learning justification therefore requires \(v\) to encode old-task sensitivity; a task-independent direction is merely a generic stabilization penalty.
+In its Bayesian derivation, \(F_A\) approximates the local curvature of the negative log posterior for task \(A\) near \(\theta_A^\star\) (\href{https://arxiv.org/abs/1612.00796}{Kirkpatrick et al.}). If \(F_A=\lambda_1vv^\top\), the penalty constrains only the scalar displacement \(v^\top(\theta-\theta_A^\star)\). Interpreting this penalty as old-task preservation therefore requires \(v\) to identify parameter changes to which task \(A\) is sensitive.
 
-\section{Low SNR removes the task}\label{low-snr-removes-the-task}
+\section{The linear proof is incorrect}\label{the-linear-proof-is-incorrect}
 
-For the variance-preserving forward process,
+The paper assumes a linear score model \(s_A(x)=Ax\) with target \(\gamma x\). Up to a positive scalar \(c\), the per-example loss and its gradient with respect to \(A\) are
+
+\[
+\ell(A;x)=\frac{c}{2}\lVert(A-\gamma I)x\rVert^2,
+\qquad
+\nabla_A\ell(A;x)=c(A-\gamma I)xx^\top.
+\]
+
+The proof replaces the last expression by \(c\lVert x\rVert^2(A-\gamma I)\), which would require \(xx^\top=\lVert x\rVert^2I\). This identity is false for \(d>1\). Except in one-dimensional or otherwise degenerate cases, the orientation of \(xx^\top\) varies across examples, so the vectorized gradients need not be collinear. The rank-one form of \(F_{\mathrm E}\) therefore does not follow even for the stated linear surrogate. Measurements on a nonlinear U-Net may still show a dominant empirical eigenvector, but they do not repair this derivation.
+
+\section{Low SNR removes task identity}\label{low-snr-removes-task-identity}
+
+For the variance-preserving forward process
 
 \[
 x_t=\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\epsilon,
 \qquad \epsilon\sim\mathcal N(0,I),
 \]
 
-low SNR means \(x_t\approx\epsilon\). The optimal score and noise-prediction target are then dominated by
+the noisy marginal converges to \(\mathcal N(0,I)\) as \(\bar\alpha_t\to0\). Its leading score and noise-prediction target are scaled copies of \(x_t\) whose coefficients depend on the noise schedule, not on the data distribution. This leading target contains no old-task identity, so the limiting argument does not establish that its gradient direction measures old-task sensitivity.
 
-\[
-s_t^\star(x_t)\approx-\frac{x_t}{1-\bar\alpha_t},
-\qquad
-\epsilon^\star(x_t,t)\approx\frac{x_t}{\sqrt{1-\bar\alpha_t}}.
-\]
+The implemented rank-one direction instead averages gradients over both data and sampled timesteps, \(\mathbb E_{x_0,t}[g(\theta;x_t,t)]\), and the continual-learning objective also includes generative distillation. Finite-SNR gradients and distillation can contain old-task information, but neither is identified by the task-independent limiting argument.
 
-These leading terms depend on the noise schedule, not the old data distribution. Task information occurs only in lower-order corrections as SNR rises. The low-SNR rank-1 direction thus describes a universal Gaussian denoising scale, not an old-task fact.
+\section{A gradient second moment is not Fisher information}\label{gradient-moment-not-fisher}
 
-The implementation restores task information by averaging gradients over the joint data--timestep sampling process. Mid- and high-SNR denoising depends on data geometry, but it lies outside the clean low-SNR derivation. The theorem supplies rank 1 where the task disappears; the all-timestep algorithm restores the task by leaving that regime. Distillation may also preserve the old task, but it is a separate mechanism.
-
-\section{Linearity does not survive automatically}\label{linearity-does-not-survive-automatically}
-
-Let a neural-network gradient decompose into a linear-surrogate term and nonlinear remainder,
-
-\[
-g(x)=g_{\mathrm{lin}}(x)+e(x).
-\]
-
-Then
-
-\[
-\mathbb E[gg^\top]
-=G_{\mathrm{lin}}+R,
-\quad
-R=\mathbb E[g_{\mathrm{lin}}e^\top+eg_{\mathrm{lin}}^\top+ee^\top].
-\]
-
-The leading eigenspace is stable only when, for instance,
-
-\[
-\lVert R\rVert_{\mathrm{op}}
-\ll
-\lambda_1(G_{\mathrm{lin}})-\lambda_2(G_{\mathrm{lin}}).
-\]
-
-Output-space proximity to a scaling map does not establish parameter-gradient collinearity after the pullback through a U-Net. The paper neither bounds this residual relative to the eigengap nor measures it.
-
-\section{The true Fisher points the other way}\label{the-true-fisher-points-the-other-way}
-
-For the conditional Gaussian model
+The spectrum of \(F_{\mathrm E}=\mathbb E[\nabla\ell\nabla\ell^\top]\) does not in general equal the Fisher-information spectrum of a probabilistic model. For the conditional linear-Gaussian model
 
 \[
 x\sim\mathcal N(0,\Sigma_x),
-\qquad y\mid x,A\sim\mathcal N(Ax,\sigma^2I_m),
+\qquad
+y\mid x,A\sim\mathcal N(Ax,\sigma^2I_m),
 \]
 
-the likelihood score is \(\nabla_A\log p_A(y\mid x)=\sigma^{-2}(y-Ax)x^\top\), giving
+the likelihood Fisher for \(A\) is
 
 \[
 F_{\mathrm{true}}=\frac{1}{\sigma^2}\Sigma_x\otimes I_m.
 \]
 
-At low SNR, \(\Sigma_x=\tau^2I_d\), hence
+If \(x\) is isotropic, this matrix is proportional to the identity rather than rank one. This calculation does not imply that the diffusion-loss gradient moment is useless; it shows that a dominant eigenvector of that moment does not establish a rank-one local KL geometry. \href{https://arxiv.org/abs/1905.12558}{Kunstner, Balles, and Hennig} analyze the distinction between gradient second moments and Fisher information more generally.
 
-\[
-F_{\mathrm{true}}=\frac{\tau^2}{\sigma^2}I_{dm}.
-\]
+\section{What would establish the mechanism}\label{what-would-establish-the-mechanism}
 
-No rank-1 direction is preferred: every Frobenius-norm perturbation of \(A\) has the same local predictive KL cost. The paper's rank-1 matrix is an empirical second moment of surrogate-loss gradients, not Fisher-information geometry. As \href{https://arxiv.org/abs/1905.12558}{Kunstner, Balles, and Hennig} emphasize, the empirical Fisher is not generally an empirical estimate of the Fisher and need not represent curvature.
-
-\section{The decisive tests}\label{the-decisive-tests}
-
-The method needs timestep-restricted comparisons: low-SNR, mid-SNR, high-SNR, and all-timestep matrices under the same replay and distillation setup. These would show where old-task preservation enters. The neural claim also needs the nonlinear residual and empirical eigengap. Finally, the matrix should be named and analyzed as a surrogate-gradient second moment, not a true Fisher; an optimization-preservation derivation such as \href{/files/improved-elastic-weight-consolidation.pdf}{IEWC} supplies the appropriate alternative framework.
-
-The \href{https://openreview.net/forum?id=zCZcbRsc4g}{OpenReview page} lists the paper as an ICLR 2026 poster. The central chain nevertheless remains unaligned: its theorem removes task identity, while its working algorithm depends on task-dependent timesteps outside that theorem.
+A theoretical repair must retain the \(xx^\top\) factor or state conditions under which the resulting gradients are approximately collinear. Timestep-restricted EWC matrices, compared under the same replay and distillation procedure, would then show whether old-task preservation comes from low-, intermediate-, or high-SNR gradients. Until that link is established, the penalty should be described as empirically motivated by a gradient second moment, not derived from the stated low-SNR Fisher argument. \href{/files/improved-elastic-weight-consolidation.pdf}{IEWC} illustrates the distinct alternative of deriving an EWC penalty from preservation of earlier optimization updates.
 
 \end{document}

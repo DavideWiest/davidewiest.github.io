@@ -1,5 +1,5 @@
 %---
-% title: "Parameter sharing works best across width"
+% title: "Where to share Transformer MLP blocks"
 % date: 2026-06-28
 % work_order: 6
 % permalink: /posts/2026/06/irregular-parameter-sharing-transformers/
@@ -13,13 +13,13 @@
 \usepackage{publication-web}
 \begin{document}
 
-Hard parameter sharing reduces model size, but its topology determines which computations are forced to coincide. In a 16-layer, width-1024 Transformer language model, cycle width sharing reached \(4.5043\) validation cross-entropy over three seeds, versus \(4.5645\) for balanced random sharing and \(4.5279\) for maximum-depth-distance sharing. Every shared variant assigned 128 exact MLP blocks to 256 layer-by-width positions, using each block twice. The result suggests preserving layer-specific transformations and sharing parallel width chunks.
+Hard parameter sharing assigns one parameter block to several computational positions; its topology is the assignment of positions to blocks. In a 16-layer, width-1024 Transformer language model, every shared variant assigned 256 layer-by-width positions to 128 exact MLP blocks, with two uses per block. Across three seeds, cycle-width sharing had mean validation cross-entropy \(4.5043\), compared with \(4.5645\) for balanced random sharing and \(4.5279\) for maximum-depth-distance sharing. In this experiment, the observed ordering favors retaining separate parameters across depth and tying parallel MLP chunks within each layer.
 
 \section{The topology question}\label{the-topology-question}
 
-Transformer sharing has usually meant cross-layer reuse: Universal Transformers recur one transition function, ALBERT shares parameters across layers, and later work compares depth schedules (\href{https://arxiv.org/abs/1807.03819}{Dehghani et al.~2018}; \href{https://arxiv.org/abs/1909.11942}{Lan et al.~2019}; \href{https://arxiv.org/abs/2104.06022}{Takase and Kiyono 2021}). The unresolved choice is which computational positions should share under a fixed parameter budget.
+Universal Transformers apply one transition recurrently, ALBERT shares parameters across depth, and later work compares depth-sharing schedules (\href{https://arxiv.org/abs/1807.03819}{Dehghani et al.~2018}; \href{https://arxiv.org/abs/1909.11942}{Lan et al.~2019}; \href{https://arxiv.org/abs/2104.06022}{Takase and Kiyono 2021}). The present comparison asks whether a fixed number of exact MLP blocks should instead be reused across hidden-width chunks.
 
-Split each of 16 layer MLPs into 16 hidden-width chunks. A schedule assigns each position \((\ell,c)\) to one of \(K=128\) learned blocks,
+Each of the 16 layer MLPs is split into 16 hidden-width chunks. A schedule assigns each position \((\ell,c)\) to one of \(K=128\) learned blocks,
 
 \[
 a(\ell,c)\in\{0,\ldots,127\},
@@ -30,17 +30,17 @@ a(\ell,c)\in\{0,\ldots,127\},
 W^{(2)}_{a(\ell,c)}.
 \]
 
-The tests compare sequence and cycle reuse along depth, sequence and cycle reuse along width, diagonal depth--width reuse, balanced random sharing, maximum-depth-distance sharing, and a best-of-12 random search. The unshared dense model supplies the practical baseline; balanced random sharing is the parameter-matched baseline. The random search selected after 800 proxy steps, then retrained the selected layout for the final three seeds.
+The experiment compares sequence and cycle assignments along depth, sequence and cycle assignments along width, a regular diagonal assignment, balanced random sharing, maximum-depth-distance sharing, and a fixed search over 12 random layouts. The unshared dense MLP is the practical baseline, while balanced random sharing is the parameter-matched baseline. The search ranks layouts after 800 proxy steps and retrains the selected layout from each of the three final seeds.
 
 \section{Setup and results}\label{setup-and-results}
 
-The decoder-only model used 16 layers, width 1024, 16 heads, sequence length 256, GELU MLPs, and tied output embeddings. Each final run trained for 5,000 AdamW steps on 100M GPT-2-tokenized OpenWebText tokens, with 2M validation tokens and seeds 0--2 (\href{https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf}{Radford et al.~2019}; \href{https://skylion007.github.io/OpenWebTextCorpus/}{Gokaslan and Cohen 2019}). Code and artifacts are in \href{https://github.com/Axym-Labs/irregular-parameter-sharing}{\texttt{Axym-Labs/irregular-parameter-sharing}}.
+The decoder-only model had 16 layers, width 1024, 16 attention heads, sequence length 256, GELU MLPs, and tied output embeddings. Each final run used 5,000 AdamW steps, 100M GPT-2-tokenized OpenWebText training tokens, 2M validation tokens, and seeds 0--2 (\href{https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf}{Radford et al.~2019}; \href{https://skylion007.github.io/OpenWebTextCorpus/}{Gokaslan and Cohen 2019}). Code and result files are available in \href{https://github.com/Axym-Labs/irregular-parameter-sharing}{\texttt{Axym-Labs/irregular-parameter-sharing}}.
 
 \publicationfigure[\linewidth]
   {images/parameter-sharing-topology/validation_ce_by_topology.png}
   {/images/parameter-sharing-topology/validation_ce_by_topology.png}
   {Validation cross-entropy by hard-sharing topology}
-  {\textbf{Figure 1.} Validation cross-entropy by topology; error bars are across three seeds.}
+  {Mean validation cross-entropy by sharing topology; error bars show one standard deviation across three seeds.}
 
 Table 1. Final validation losses. Shared variants use 128 MLP blocks and 67.1M MLP-bank parameters.
 
@@ -80,32 +80,32 @@ Maximum depth distance & depth and width & 128 & 67.1M & 4.5279 +/- 0.0243 & -0.
 Best-of-12 random & depth and width & 128 & 67.1M & 4.6057 +/- 0.0523 & +0.0413 \\
 \end{longtable}
 
-Cycle width sharing beat balanced random by \(0.0601\) CE and the unshared model by \(0.0885\) within this training budget. Maximum-depth-distance sharing beat random by \(0.0366\). The best proxy among 12 random layouts did not survive final retraining.
+Cycle-width sharing had mean cross-entropy \(0.0601\) below balanced random sharing and \(0.0885\) below the unshared model within this training budget. Maximum-depth-distance sharing was \(0.0366\) below balanced random sharing. The layout selected by the 800-step random search had final mean cross-entropy \(0.0413\) above the balanced random baseline.
 
 \publicationfigure[0.9\linewidth]
   {images/parameter-sharing-topology/delta_vs_random.png}
   {/images/parameter-sharing-topology/delta_vs_random.png}
   {Validation cross-entropy deltas relative to balanced random hard sharing}
-  {\textbf{Figure 2.} Parameter-matched topologies relative to balanced random sharing; negative values are better.}
+  {Difference in mean validation cross-entropy from balanced random sharing for each parameter-matched topology; negative values denote lower loss.}
 
-\section{Why width sharing wins}\label{why-width-sharing-wins}
+\section{Interpreting the width-axis result}\label{why-width-sharing-wins}
 
-Cycle width sharing keeps a separate block bank in every layer:
+Cycle-width sharing keeps a separate block bank in each layer:
 
 \[
 a_{\mathrm{width\ cycle}}(\ell,c)=8\ell+(c\bmod 8).
 \]
 
-Chunks \(c\) and \(c+8\) share within a layer; no block crosses depth. Its parameter count matches every other shared model.
+Chunks \(c\) and \(c+8\) use the same block within one layer, and no block is used at two depths. The number of learned blocks matches every other shared variant.
 
 \publicationfigure[\linewidth]
   {images/parameter-sharing-topology/sharing_topology_schedules.png}
   {/images/parameter-sharing-topology/sharing_topology_schedules.png}
   {Four hard-sharing schedules over layer and MLP chunk positions}
-  {\textbf{Figure 3.} Representative schedules over the 16-layer by 16-chunk grid. Color denotes block identity modulo the plotting palette.}
+  {Four assignments on the 16-layer by 16-chunk grid; color denotes block identity modulo the plotting palette.}
 
-Depth is ordered: lower and upper layers operate on different residual-stream distributions and at different stages of the computation. Width chunks are parallel contributors to one layer update. Cross-width sharing removes capacity while preserving the layer-specific transformation; cross-depth sharing forces one operator into distinct computational regimes.
+Transformer depth indexes successive residual-stream transformations, so a block reused across layers operates on states produced at different stages of the computation. The MLP chunks within one layer instead contribute in parallel to the same residual update. Tying width chunks reduces the number of learned blocks without requiring one block to operate at several depths.
 
-The depth results support the same distinction. Separating tied uses improves cycle depth over sequence depth, and maximum-depth-distance sharing improves over random. Avoiding cross-depth ties entirely performs best. The supported design rule is therefore about the sharing axis, not the arbitrary ordering of MLP chunks: preserve depth before width.
+Among the two regular depth schedules, cycle-depth sharing has lower mean loss than sequence-depth sharing. Maximum-depth-distance sharing also has lower mean loss than balanced random sharing, while cycle-width sharing has the lowest mean of all tested assignments. These data support a scoped design hypothesis: when exact MLP blocks must be tied under this budget, preserve layer identity before width-chunk identity.
 
 \end{document}
