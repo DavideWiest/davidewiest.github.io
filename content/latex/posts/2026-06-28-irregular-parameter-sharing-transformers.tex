@@ -1,5 +1,5 @@
 %---
-% title: "Where to share Transformer MLP blocks"
+% title: "Parameter sharing works best across width"
 % date: 2026-06-28
 % work_order: 6
 % permalink: /posts/2026/06/irregular-parameter-sharing-transformers/
@@ -13,7 +13,7 @@
 \usepackage{publication-web}
 \begin{document}
 
-Hard parameter sharing assigns one parameter block to several computational positions; its topology is the assignment of positions to blocks. In a 16-layer, width-1024 Transformer language model, every shared variant assigned 256 layer-by-width positions to 128 exact MLP blocks, with two uses per block. Across three seeds, cycle-width sharing had mean validation cross-entropy \(4.5043\), compared with \(4.5645\) for balanced random sharing and \(4.5279\) for maximum-depth-distance sharing. In this experiment, the observed ordering favors retaining separate parameters across depth and tying parallel MLP chunks within each layer.
+Hard parameter sharing assigns one parameter block to several computational positions; its topology is the assignment of positions to blocks. In a 16-layer, width-1024 Transformer language model, every shared variant assigned 256 layer-by-width positions to 128 exact MLP blocks, with two uses per block. Across three seeds, cycle-width sharing had the lowest mean validation cross-entropy among the nine tested assignments: \(4.5043\), compared with \(4.5645\) for balanced random sharing and \(4.5279\) for maximum-depth-distance sharing. In this experiment, the observed ordering favors retaining separate parameters across depth and tying parallel MLP chunks within each layer.
 
 \section{The topology question}\label{the-topology-question}
 

@@ -1,5 +1,5 @@
 %---
-% title: "Chemokinetic optimization under stochastic actuation"
+% title: "Chemokinetic Optimization: The Information Barrier"
 % date: 2026-05-10
 % work_order: 9
 % permalink: /posts/2026/05/chemokinesis-curse-of-dimensionality/
@@ -35,7 +35,7 @@ If \(q\) and \(h>0\) are available before the move, minimizing the local quadrat
 s^*(u)=\frac{(-q)_+}{h}.
 \]
 
-The positive part assigns zero motion when \(q\geq0\). For a quadratic \(L(x)=\tfrac12x^\top Hx\), consider the curvature-independent update \(x^+=x+\alpha(-g^\top U)_+U\), where \(U\) is uniform on the unit sphere and one scalar \(\alpha\) is chosen to maximize expected progress. Its optimal expected decrease relative to exact gradient line search is
+The positive part assigns zero motion when \(q\geq0\). For a quadratic \(L(x)=\tfrac12x^\top Hx\) with \(H\succeq0\), \(g=Hx\), and \(g^\top Hg>0\), consider the curvature-independent update \(x^+=x+\alpha(-g^\top U)_+U\), where \(U\) is uniform on the unit sphere and one scalar \(\alpha\) is chosen to maximize expected progress. Its optimal expected decrease relative to exact gradient line search is
 
 \[
 d_{\mathrm{eff}}(g,H)
@@ -78,7 +78,7 @@ Suppose a warmup identifies \(P_Sg\), the component of the local gradient in a m
 s_S^*(u)=\frac{(-u^\top P_Sg)_+}{u^\top Hu}.
 \]
 
-When \(u^\top Hu\) is constant over directions, its expected progress fraction is \(\lVert P_Sg\rVert^2/\lVert g\rVert^2\), whose expectation is \(m/d\) for a random \(m\)-dimensional \(S\). A fresh direction need not lie in \(S\), because its projection onto \(S\) still predicts part of its slope.
+When \(u^\top Hu=h_0>0\) is constant over directions, its expected progress fraction is \(\lVert P_Sg\rVert^2/\lVert g\rVert^2\), whose expectation is \(m/d\) for a random \(m\)-dimensional \(S\). A fresh direction need not lie in \(S\), because its projection onto \(S\) still predicts part of its slope.
 
 An operational approximation collects parallel forward differences \(y_i=[L(\theta_0+\delta u_i)-L(\theta_0)]/\delta\), stacks the directions as rows of \(V\), and estimates
 
@@ -103,8 +103,8 @@ For \(x^+=x+\alpha(-g^\top U)_+U\) with \(U\) uniform on the sphere,
 \left(\operatorname{tr}(H)\lVert g\rVert^2+2g^\top Hg\right).
 \]
 
-Minimizing over \(\alpha\) and dividing by the exact gradient-line-search decrease \(\lVert g\rVert^4/(2g^\top Hg)\) gives the \(1/(2d_{\mathrm{eff}})\) progress ratio.
+Writing \(D=\operatorname{tr}(H)\lVert g\rVert^2+2g^\top Hg\), minimization gives \(\alpha^*=(d+2)\lVert g\rVert^2/D\). Dividing the resulting decrease by the exact gradient-line-search decrease \(\lVert g\rVert^4/(2g^\top Hg)\) gives the \(1/(2d_{\mathrm{eff}})\) progress ratio.
 
-Conditioning an isotropic Gaussian on \(M\) exact projections leaves an independent isotropic component in \(S^\perp\), so \(\widehat g=P_Sg\). The identities \(\mathbb E_u[(u^\top a)^2]=\lVert a\rVert^2/d\) and \(\mathbb E\lVert P_Sg\rVert^2=(M/d)\mathbb E\lVert g\rVert^2\) give both \(M/d\) fractions.
+With constant curvature \(h_0\), the conditional expected decrease of the Bayes action is \(({-\mu})_+^2/(2h_0)\). Symmetry gives \(\mathbb E[({-\mu})_+^2]=\tfrac12\mathbb E[\mu^2]\). Conditioning an isotropic Gaussian on \(M\) exact projections leaves an independent isotropic component in \(S^\perp\), so \(\widehat g=P_Sg\); the identities \(\mathbb E_u[(u^\top a)^2]=\lVert a\rVert^2/d\) and \(\mathbb E\lVert P_Sg\rVert^2=(M/d)\mathbb E\lVert g\rVert^2\) then give both \(M/d\) fractions.
 
 \end{document}

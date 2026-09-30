@@ -1,5 +1,5 @@
 %---
-% title: "Why a low-SNR rank-one gradient moment does not justify EWC"
+% title: "Critical flaws in `Avoid Catastrophic Forgetting with Rank-1 Fisher from Diffusion Models'"
 % date: 2026-06-18
 % work_order: 8
 % permalink: /posts/2026/06/rank-1-fisher-no-task-to-remember/
@@ -27,7 +27,7 @@ In its Bayesian derivation, \(F_A\) approximates the local curvature of the nega
 
 \section{The linear proof is incorrect}\label{the-linear-proof-is-incorrect}
 
-The paper assumes a linear score model \(s_A(x)=Ax\) with target \(\gamma x\). Up to a positive scalar \(c\), the per-example loss and its gradient with respect to \(A\) are
+The paper assumes a linear score model \(s_A(x)=Ax\) with target \(\gamma x\). Even when \(A\) itself is the parameter, the per-example loss and its gradient, up to a positive scalar \(c\), are
 
 \[
 \ell(A;x)=\frac{c}{2}\lVert(A-\gamma I)x\rVert^2,
@@ -35,7 +35,7 @@ The paper assumes a linear score model \(s_A(x)=Ax\) with target \(\gamma x\). U
 \nabla_A\ell(A;x)=c(A-\gamma I)xx^\top.
 \]
 
-The proof replaces the last expression by \(c\lVert x\rVert^2(A-\gamma I)\), which would require \(xx^\top=\lVert x\rVert^2I\). This identity is false for \(d>1\). Except in one-dimensional or otherwise degenerate cases, the orientation of \(xx^\top\) varies across examples, so the vectorized gradients need not be collinear. The rank-one form of \(F_{\mathrm E}\) therefore does not follow even for the stated linear surrogate. Measurements on a nonlinear U-Net may still show a dominant empirical eigenvector, but they do not repair this derivation.
+The proof replaces the last expression by \(c\lVert x\rVert^2(A-\gamma I)\), which would require \(xx^\top=\lVert x\rVert^2I\). This identity is false for \(d>1\). Except in one-dimensional or otherwise degenerate cases, the orientation of \(xx^\top\) varies across examples, so the vectorized gradients need not be collinear. If \(A=A_\theta\), the chain rule instead gives \(\nabla_\theta\ell=cJ_\theta^\top\operatorname{vec}[(A_\theta-\gamma I)xx^\top]\), where \(J_\theta=\partial\operatorname{vec}(A_\theta)/\partial\theta\); no input-independent direction follows without an additional restriction on this Jacobian. The rank-one form of \(F_{\mathrm E}\) therefore does not follow even for the stated linear surrogate. Measurements on a nonlinear U-Net may still show a dominant empirical eigenvector, but they do not repair this derivation.
 
 \section{Low SNR removes task identity}\label{low-snr-removes-task-identity}
 
@@ -46,7 +46,16 @@ x_t=\sqrt{\bar\alpha_t}x_0+\sqrt{1-\bar\alpha_t}\epsilon,
 \qquad \epsilon\sim\mathcal N(0,I),
 \]
 
-the noisy marginal converges to \(\mathcal N(0,I)\) as \(\bar\alpha_t\to0\). Its leading score and noise-prediction target are scaled copies of \(x_t\) whose coefficients depend on the noise schedule, not on the data distribution. This leading target contains no old-task identity, so the limiting argument does not establish that its gradient direction measures old-task sensitivity.
+Tweedie's identity gives
+
+\[
+s_t^*(x_t)
+=\frac{\sqrt{\bar\alpha_t}}{1-\bar\alpha_t}
+\mathbb E[x_0\mid x_t]
+-\frac{x_t}{1-\bar\alpha_t}.
+\]
+
+For data distributions with finite second moment, the first term vanishes in mean square as \(\bar\alpha_t\to0\), while the noisy marginal converges to \(\mathcal N(0,I)\). Thus the leading score is \(-x_t/(1-\bar\alpha_t)\), and the corresponding population noise predictor \(\mathbb E[\epsilon\mid x_t]=-\sqrt{1-\bar\alpha_t}\,s_t^*(x_t)\) is also a schedule-dependent scaling of \(x_t\). Neither leading map depends on the old data distribution, so the limiting argument does not establish that its gradient direction measures old-task sensitivity.
 
 The implemented rank-one direction instead averages gradients over both data and sampled timesteps, \(\mathbb E_{x_0,t}[g(\theta;x_t,t)]\), and the continual-learning objective also includes generative distillation. Finite-SNR gradients and distillation can contain old-task information, but neither is identified by the task-independent limiting argument.
 
