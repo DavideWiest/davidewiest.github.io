@@ -1,14 +1,6 @@
 ---
-layout: editorial-archive
 title: "Work"
 permalink: /work/
-author_profile: false
+redirect_to: https://axym.org/work/
+sitemap: false
 ---
-
-{% assign combined_work = site.portfolio | concat: site.posts %}
-{% assign sorted_work = combined_work | sort: 'work_order' %}
-{% for post in sorted_work %}
-  {% unless post.hidden %}
-    {% include editorial-archive-item.html item=post %}
-  {% endunless %}
-{% endfor %}

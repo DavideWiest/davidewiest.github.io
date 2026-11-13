@@ -24,15 +24,9 @@ expected_urls=(
   "https://davidewiest.com/"
   "https://davidewiest.com/posts/2026/05/chemokinesis-curse-of-dimensionality/"
   "https://davidewiest.com/posts/2026/06/irregular-parameter-sharing-transformers/"
-  "https://davidewiest.com/posts/2026/06/pptrain-ready-to-use-prepretraining/"
   "https://davidewiest.com/posts/2026/06/rank-1-fisher-no-task-to-remember/"
   "https://davidewiest.com/posts/2026/07/delay-flow-matching-learns-the-coupling/"
   "https://davidewiest.com/posts/2026/07/prepretraining-tested-it-doesnt-work/"
-  "https://davidewiest.com/work/"
-  "https://davidewiest.com/work/ClacProgrammingLanguage/"
-  "https://davidewiest.com/work/PVGrowthForecasting/"
-  "https://davidewiest.com/work/closed-form-initialization/"
-  "https://davidewiest.com/work/gradient-routing-continual-learning/"
   "https://davidewiest.com/year-archive/"
 )
 
@@ -72,7 +66,10 @@ for stale_route in \
   fi
 done
 
-contains 'href="https://davidewiest.com/work/closed-form-initialization/"' "$human_sitemap"
 contains 'href="https://davidewiest.com/year-archive/"' "$human_sitemap"
+
+# The homepage work list is built from axym.org/api/work.json.
+contains 'class="work-list"' "$site_dir/index.html"
+contains 'href="https://axym.org/work/iewc/"' "$site_dir/index.html"
 
 printf 'personal-site indexing test: PASS\n'

@@ -5,6 +5,9 @@ on:
     branches:
       - master
   workflow_dispatch:
+  schedule:
+    # Pick up changes to the axym.org work list.
+    - cron: '17 4 * * *'
 
 permissions:
   contents: write
@@ -36,6 +39,14 @@ jobs:
             --site-root . \
             --css-output assets/css/latex-publication.css \
             --metadata-field latex_publication=true
+
+      - name: Fetch work list from axym.org
+        # Falls back to the committed snapshot if the endpoint is unavailable.
+        run: |
+          curl -fsSL --retry 3 https://axym.org/api/work.json -o /tmp/axym_work.json \
+            && python3 -c "import json; assert json.load(open('/tmp/axym_work.json'))['items']" \
+            && mv /tmp/axym_work.json _data/axym_work.json \
+            || echo "Using committed _data/axym_work.json"
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
