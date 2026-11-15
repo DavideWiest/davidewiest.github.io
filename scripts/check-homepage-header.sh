@@ -38,7 +38,7 @@ check_header() {
   expect_contains "$index" '>Projects<' 'expected Projects in the primary nav'
   expect_contains "$index" '>CV<' 'expected CV in the primary nav'
   expect_contains "$index" '>Blog<' 'expected Blog in the primary nav'
-  expect_contains "$index" '>Email<' 'expected Email in the secondary nav'
+  expect_contains "$index" '>Google Scholar<' 'expected Google Scholar in the secondary nav'
   expect_contains "$index" '>GitHub<' 'expected GitHub in the secondary nav'
   expect_contains "$index" '>LinkedIn<' 'expected LinkedIn in the secondary nav'
   expect_not_contains "$index" '>Blog Posts<' 'unexpected old Blog Posts label still present'
