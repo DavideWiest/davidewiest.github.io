@@ -44,31 +44,10 @@ The decoder-only model had 16 layers, width 1024, 16 attention heads, sequence l
 
 Table 1. Final validation losses. Shared variants use 128 MLP blocks and 67.1M MLP-bank parameters.
 
-\begin{longtable}[]{@{}
-  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1364}}
-  >{\raggedright\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1364}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}
-  >{\raggedleft\arraybackslash}p{(\linewidth - 10\tabcolsep) * \real{0.1818}}@{}}
-\toprule\noalign{}
-\begin{minipage}[b]{\linewidth}\raggedright
-Variant
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
-Sharing topology
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-MLP blocks
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-MLP-bank params
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Validation CE
-\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedleft
-Delta vs random
-\end{minipage} \\
-\midrule\noalign{}
-\endhead
-\bottomrule\noalign{}
-\endlastfoot
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+Variant & Sharing topology & MLP blocks & MLP-bank params & Validation CE & Delta vs random \\
+\midrule
 Unshared dense MLP & none & 256 & 134.2M & 4.5928 +/- 0.0384 & +0.0284 \\
 Sequence depth & depth & 128 & 67.1M & 4.5723 +/- 0.0781 & +0.0078 \\
 Cycle depth & depth & 128 & 67.1M & 4.5322 +/- 0.0733 & -0.0322 \\
@@ -78,7 +57,8 @@ Diagonal depth-width & depth and width & 128 & 67.1M & 4.5504 +/- 0.0086 & -0.01
 Balanced random & depth and width & 128 & 67.1M & 4.5645 +/- 0.0601 & 0.0000 \\
 Maximum depth distance & depth and width & 128 & 67.1M & 4.5279 +/- 0.0243 & -0.0366 \\
 Best-of-12 random & depth and width & 128 & 67.1M & 4.6057 +/- 0.0523 & +0.0413 \\
-\end{longtable}
+\bottomrule
+\end{tabular}
 
 Cycle-width sharing had mean cross-entropy \(0.0601\) below balanced random sharing and \(0.0885\) below the unshared model within this training budget. Maximum-depth-distance sharing was \(0.0366\) below balanced random sharing. The layout selected by the 800-step random search had final mean cross-entropy \(0.0413\) above the balanced random baseline.
 
