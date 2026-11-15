@@ -155,6 +155,7 @@ exclude:
   - .asset-cache
   - .bundle
   - docs
+  - tools
   - .github
   - .jekyll-assets-cache
   - .sass-cache
