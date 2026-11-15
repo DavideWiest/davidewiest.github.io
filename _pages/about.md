@@ -3,7 +3,7 @@ permalink: /
 layout: homepage
 author_profile: false
 hero_intro: >-
-  I'm a computer science student at TU Darmstadt working on machine learning research. My work is scattered across different areas, but most connect directly to deep learning.
+  I'm a computer science student at TU Darmstadt working on machine learning research. My work is scattered across different areas, but most connect directly to deep learning. My work focused on optimization dynamics, interpretability and simulation of neurons.
 redirect_from: 
   - /about/
   - /about.html
