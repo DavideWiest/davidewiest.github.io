@@ -1,2 +1,2 @@
-Vendored from Axym-Labs/harness-execution skills/publish-work at 97c625e80ba79f10b5edc2189c0c8a2e0fc43cd4.
+Vendored from Axym-Labs/harness-execution skills/publish-work at dc02a28f12c2a220317076af628a602a921b2846.
 Update by copying scripts/render-latex-publications.py and assets/latex-html/ from there.

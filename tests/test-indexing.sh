@@ -68,7 +68,7 @@ contains 'href="https://davidewiest.com/year-archive/"' "$human_sitemap"
 
 # Posts ported to axym.org redirect there from their old routes.
 contains 'https://axym.org/work/irregular-parameter-sharing/' "$site_dir/posts/2026/06/irregular-parameter-sharing-transformers/index.html"
-contains 'https://axym.org/work/prepretraining-not-ready-yet/' "$site_dir/posts/2026/07/prepretraining-tested-it-doesnt-work/index.html"
+contains 'https://axym.org/work/pptrain/' "$site_dir/posts/2026/07/prepretraining-tested-it-doesnt-work/index.html"
 
 # The homepage work list is built from axym.org/api/work.json.
 contains 'class="work-list"' "$site_dir/index.html"
