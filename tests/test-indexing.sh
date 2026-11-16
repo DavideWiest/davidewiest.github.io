@@ -23,10 +23,8 @@ fi
 expected_urls=(
   "https://davidewiest.com/"
   "https://davidewiest.com/posts/2026/05/chemokinesis-curse-of-dimensionality/"
-  "https://davidewiest.com/posts/2026/06/irregular-parameter-sharing-transformers/"
   "https://davidewiest.com/posts/2026/06/rank-1-fisher-no-task-to-remember/"
   "https://davidewiest.com/posts/2026/07/delay-flow-matching-learns-the-coupling/"
-  "https://davidewiest.com/posts/2026/07/prepretraining-tested-it-doesnt-work/"
   "https://davidewiest.com/year-archive/"
 )
 
@@ -67,6 +65,10 @@ for stale_route in \
 done
 
 contains 'href="https://davidewiest.com/year-archive/"' "$human_sitemap"
+
+# Posts ported to axym.org redirect there from their old routes.
+contains 'https://axym.org/work/irregular-parameter-sharing/' "$site_dir/posts/2026/06/irregular-parameter-sharing-transformers/index.html"
+contains 'https://axym.org/work/prepretraining-not-ready-yet/' "$site_dir/posts/2026/07/prepretraining-tested-it-doesnt-work/index.html"
 
 # The homepage work list is built from axym.org/api/work.json.
 contains 'class="work-list"' "$site_dir/index.html"
