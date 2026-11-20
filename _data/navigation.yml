@@ -20,13 +20,13 @@ primary:
 
 secondary:
   - title: "Google Scholar"
-    url: https://scholar.google.com/citations?user=PS_CX0AAAAAJ
+    url: https://scholar.google.de/citations?user=lHkx2ywAAAAJ&hl=en
     _target: "_blank"
 
   - title: "GitHub"
     url: https://github.com/DavideWiest
     _target: "_blank"
 
-  - title: "LinkedIn"
-    url: https://www.linkedin.com/in/DavideWiest
-    _target: "_blank"
+  #- title: "LinkedIn"
+  #  url: https://www.linkedin.com/in/DavideWiest
+  #  _target: "_blank"
